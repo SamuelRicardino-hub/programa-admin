@@ -1,7 +1,7 @@
 <?php 
-require_once __DIR__ . '/../layout/header.php';
-require_once __DIR__ . '/../config/conexao.php';
-require_once __DIR__ . '/../config/protect.php';
+require_once __DIR__ . "/../../config/protect.php";
+require_once __DIR__ . "/../../config/conexao.php";
+require_once __DIR__ . "/../../layout/admin_header.php";
 
 // Buscar turmas no banco
 $stmt = $pdo->query("SELECT id, nome, descricao FROM turmas ORDER BY id DESC");
@@ -80,4 +80,4 @@ $turmas = $stmt->fetchAll(PDO::FETCH_ASSOC);
     Voltar
 </a>
 
-<?php require_once __DIR__ . '/../layout/footer.php'; ?>
+<?php require_once __DIR__ . '/../layout/admin_footer.php'; ?>

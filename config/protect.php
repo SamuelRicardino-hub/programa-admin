@@ -1,11 +1,9 @@
 <?php
-session_start();
-
-if (!isset($_SESSION['usuario'])) {
-    header("Location: /admin/login.php");
-    exit;
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
-if ($_SESSION['nivel'] !== 'admin') {
-    die("Acesso restrito.");
+if (!isset($_SESSION['admin_id'])) {
+    header("Location: /programa-admin/public/admin/login.php");
+    exit;
 }

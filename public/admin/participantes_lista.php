@@ -1,9 +1,8 @@
 <?php
 require_once __DIR__ . "/../../config/protect.php";
-require_once __DIR__ .'../config/conexao.php';
-
+require_once __DIR__ . "/../../config/conexao.php";
+require_once __DIR__ . "/../../layout/admin_header.php";
 $titulo = "Participantes";
-require_once __DIR__ . '/../layout/header.php';
 
 $sql = $pdo->query("
     SELECT p.id, p.nome, p.email, t.nome AS turma
@@ -72,4 +71,4 @@ $participantes = $sql->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 
-<?php require_once __DIR__ . '/../layout/footer.php'; ?>
+<?php require_once __DIR__ . '/../layout/admin_footer.php'; ?>

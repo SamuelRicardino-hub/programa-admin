@@ -1,15 +1,55 @@
-<?php require_once __DIR__ . "/../layout/header.php"; ?>
+<?php require_once __DIR__ . "/../layout/public_header.php"; ?>
 
-<h2>Pré-Cadastro</h2>
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
 
-<form action="pre_cadastro_salvar.php" method="POST">
-    <input type="text" name="nome" placeholder="Nome completo" required>
-    <input type="text" name="cpf" placeholder="CPF" required>
-    <input type="email" name="email" placeholder="Email" required>
-    <input type="text" name="telefone" placeholder="Telefone">
-    <input type="date" name="data_nascimento">
-    <input type="text" name="endereco" placeholder="Endereço">
-    <button type="submit">Enviar</button>
-</form>
+        <h3 class="mb-4 text-center">Pré-Cadastro</h3>
 
-<?php require_once __DIR__ . "/../layout/footer.php"; ?>
+        <?php if (isset($_GET['erro'])): ?>
+            <div class="alert alert-danger">
+                CPF já cadastrado.
+            </div>
+        <?php endif; ?>
+
+        <form method="POST" action="pre_cadastro_salvar.php">
+
+            <div class="mb-3">
+                <label class="form-label">Nome Completo</label>
+                <input type="text" name="nome" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">CPF</label>
+                <input type="text" name="cpf" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Idade</label>
+                <input type="number" name="idade" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Naturalidade</label>
+                <input type="text" name="naturalidade" class="form-control">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Telefone</label>
+                <input type="text" name="telefone" class="form-control">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" class="form-control">
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">
+                Enviar Pré-Cadastro
+            </button>
+
+        </form>
+
+    </div>
+</div>
+
+<?php require_once __DIR__ . "/../layout/public_footer.php"; ?>

@@ -1,6 +1,7 @@
 <?php
-require_once __DIR__ . '/../config/protect.php';
-require_once __DIR__ . '/../config/conexao.php';
+require_once __DIR__ . "/../../config/protect.php";
+require_once __DIR__ . "/../../config/conexao.php";
+require_once __DIR__ . "/../../layout/admin_header.php";
 
 $usuarios = $pdo->query("
     SELECT id, nome, email 
@@ -76,4 +77,4 @@ require_once __DIR__ . '/../layout/header.php';
     Voltar ao Dashboard
 </a>
 
-<?php require_once __DIR__ . '/../layout/footer.php'; ?>
+<?php require_once __DIR__ . '/../layout/admin_footer.php'; ?>

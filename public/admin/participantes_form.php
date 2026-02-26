@@ -1,9 +1,9 @@
 <?php
 require_once __DIR__ . "/../../config/protect.php";
-require_once __DIR__ .'../config/conexao.php';
-
+require_once __DIR__ . "/../../config/conexao.php";
+require_once __DIR__ . "/../../layout/admin_header.php";
 $titulo = "Novo Participante";
-require_once __DIR__ . '/../layout/header.php';
+
 
 // Busca turmas
 $sql = $pdo->query("SELECT id, nome FROM turmas ORDER BY nome");
@@ -69,4 +69,4 @@ $turmas = $sql->fetchAll(PDO::FETCH_ASSOC);
 
 </div>
 
-<?php require_once __DIR__ . '/../layout/footer.php'; ?>
+<?php require_once __DIR__ . '/../layout/admin_footer.php'; ?>

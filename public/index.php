@@ -1,14 +1,21 @@
-<?php require_once __DIR__ . "/../layout/header.php"; ?>
+<?php require_once __DIR__ . "/../layout/public_header.php"; ?>
 
-<div class="container">
-    <h1>Programa Administrativo</h1>
-    <p>Realize seu pré-cadastro para participar do programa.</p>
+<?php if (isset($_GET['sucesso'])): ?>
+    <div class="alert alert-success mt-4 text-center">
+        Pré-cadastro enviado com sucesso!
+    </div>
+<?php endif; ?>
 
-    <a href="pre_cadastro.php" class="btn">Fazer Pré-Cadastro</a>
+<div class="hero">
+    <h1 class="mb-4">Bem-vindo ao Programa Social</h1>
 
-    <hr>
+    <p class="lead mb-4">
+        Faça seu pré-cadastro para participar do programa.
+    </p>
 
-    <a href="admin/login.php">Área Administrativa</a>
+    <a href="pre_cadastro.php" class="btn btn-primary btn-lg">
+        Fazer Pré-Cadastro
+    </a>
 </div>
 
-<?php require_once __DIR__ . "/../layout/footer.php"; ?>
+<?php require_once __DIR__ . "/../layout/public_footer.php"; ?>
