@@ -16,10 +16,10 @@ $participantes = $sql->fetchAll(PDO::FETCH_ASSOC);
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h3 class="mb-0">Participantes</h3>
-    <a href="participantes_form.php" class="btn btn-success">
-        + Cadastrar Participante
-    </a>
 </div>
+<a href="participantes_por_turma.php" class="btn btn-outline-primary btn-sm">
+    Listar por Turma
+</a>
 
 <div class="card shadow">
     <div class="card-body">
@@ -71,4 +71,4 @@ $participantes = $sql->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 
-<?php require_once __DIR__ . '/../layout/admin_footer.php'; ?>
+<?php require_once __DIR__ . '/../../layout/admin_footer.php'; ?>

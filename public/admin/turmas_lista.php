@@ -1,4 +1,4 @@
-<?php 
+<?php
 require_once __DIR__ . "/../../config/protect.php";
 require_once __DIR__ . "/../../config/conexao.php";
 require_once __DIR__ . "/../../layout/admin_header.php";
@@ -27,6 +27,11 @@ $turmas = $stmt->fetchAll(PDO::FETCH_ASSOC);
         + Cadastrar Turma
     </a>
 </div>
+<?php if (isset($_GET['msg']) && $_GET['msg'] === 'criado'): ?>
+    <div class="alert alert-success">
+        Turma criada com sucesso!
+    </div>
+<?php endif; ?>
 
 <div class="card shadow-sm">
     <div class="card-body">
@@ -49,14 +54,14 @@ $turmas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <td><?= htmlspecialchars($t['nome']) ?></td>
                             <td><?= htmlspecialchars($t['descricao']) ?></td>
                             <td>
-                                <a href="turmas_editar.php?id=<?= $t['id'] ?>" 
-                                   class="btn btn-sm btn-primary">
+                                <a href="turmas_editar.php?id=<?= $t['id'] ?>"
+                                    class="btn btn-sm btn-primary">
                                     Editar
                                 </a>
 
                                 <a href="turmas_excluir.php?id=<?= $t['id'] ?>"
-                                   class="btn btn-sm btn-danger"
-                                   onclick="return confirm('Deseja excluir?')">
+                                    class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Deseja excluir?')">
                                     Excluir
                                 </a>
                             </td>

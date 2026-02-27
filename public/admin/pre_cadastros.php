@@ -9,8 +9,6 @@ $stmt = $pdo->prepare("SELECT * FROM pre_cadastros WHERE status = ? ORDER BY cri
 $stmt->execute([$statusFiltro]);
 $preCadastros = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$stmt = $pdo->query("SELECT * FROM pre_cadastros WHERE status = 'pendente' ORDER BY criado_em DESC");
-$preCadastros = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <h2 class="mb-4">Pré-Cadastros Pendentes</h2>
@@ -57,9 +55,8 @@ $preCadastros = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                             <td>
                                 <?php if ($pre['status'] === 'pendente'): ?>
-                                    <a href="pre_cadastro_processar.php?id=<?= $pre['id'] ?>&acao=aprovar"
-                                        class="btn btn-success btn-sm"
-                                        onclick="return confirm('Tem certeza que deseja APROVAR este pré-cadastro?')">
+                                    <a href="pre_cadastro_aprovar.php?id=<?= $pre['id'] ?>"
+                                        class="btn btn-sm btn-success">
                                         Aprovar
                                     </a>
 

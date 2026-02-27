@@ -94,4 +94,4 @@ $turmas = $pdo->query("SELECT id, nome FROM turmas ORDER BY nome")->fetchAll();
 
 </div>
 
-<?php require_once __DIR__ . '/../layout/admin_footer.php'; ?>
+<?php require_once __DIR__ . '/../../layout/admin_footer.php'; ?>
