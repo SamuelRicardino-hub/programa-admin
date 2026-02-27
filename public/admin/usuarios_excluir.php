@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once __DIR__ . "/../../config/protect.php";
-require_once __DIR__ .'../config/conexao.php';
+require_once __DIR__ .'/../../config/conexao.php';
 
 if (!isset($_SESSION['usuario'])) {
     header("Location: login.php");

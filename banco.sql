@@ -91,19 +91,27 @@ CREATE TABLE turmas (
 CREATE TABLE participantes (
     id INT AUTO_INCREMENT PRIMARY KEY,
 
-    pre_cadastro_id INT NOT NULL,
+    nome VARCHAR(150) NOT NULL,
+    cpf VARCHAR(14) NOT NULL UNIQUE,
+    idade INT NOT NULL,
+    naturalidade VARCHAR(100),
 
-    data_aprovacao DATETIME DEFAULT CURRENT_TIMESTAMP,
-    observacoes TEXT,
+    telefone VARCHAR(20),
+    email VARCHAR(150),
 
-    CONSTRAINT uk_participante_pre UNIQUE (pre_cadastro_id),
+    turma_id INT NULL,
 
-    CONSTRAINT fk_participante_pre
-        FOREIGN KEY (pre_cadastro_id)
-        REFERENCES pre_cadastros(id)
-        ON DELETE CASCADE
-) ENGINE=InnoDB;
+    status ENUM('ativo','inativo') DEFAULT 'ativo',
 
+    criado_em DATETIME DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_participante_turma
+        FOREIGN KEY (turma_id)
+        REFERENCES turmas(id)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE ficha_avaliacao_final (
     id INT AUTO_INCREMENT PRIMARY KEY,

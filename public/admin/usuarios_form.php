@@ -13,7 +13,6 @@ if ($id) {
 }
 
 $titulo = $usuario ? "Editar Usuário" : "Novo Usuário";
-require_once __DIR__ . '/../layout/header.php';
 ?>
 
 <div class="row justify-content-center">
@@ -76,4 +75,4 @@ require_once __DIR__ . '/../layout/header.php';
     </div>
 </div>
 
-<?php require_once __DIR__ . '/../layout/admin_footer.php'; ?>
+<?php require_once __DIR__ . '/../../layout/admin_footer.php'; ?>

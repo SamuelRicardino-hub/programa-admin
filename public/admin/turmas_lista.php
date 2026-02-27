@@ -80,4 +80,4 @@ $turmas = $stmt->fetchAll(PDO::FETCH_ASSOC);
     Voltar
 </a>
 
-<?php require_once __DIR__ . '/../layout/admin_footer.php'; ?>
+<?php require_once __DIR__ . '/../../layout/admin_footer.php'; ?>

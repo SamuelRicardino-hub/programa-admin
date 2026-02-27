@@ -10,7 +10,6 @@ $usuarios = $pdo->query("
 ")->fetchAll(PDO::FETCH_ASSOC);
 
 $titulo = "Usuários";
-require_once __DIR__ . '/../layout/header.php';
 ?>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -77,4 +76,4 @@ require_once __DIR__ . '/../layout/header.php';
     Voltar ao Dashboard
 </a>
 
-<?php require_once __DIR__ . '/../layout/admin_footer.php'; ?>
+<?php require_once __DIR__ . '/../../layout/admin_footer.php'; ?>
