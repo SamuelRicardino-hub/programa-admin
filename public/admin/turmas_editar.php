@@ -63,4 +63,4 @@ if (!$turma) {
     </div>
 </div>
 
-<?php require_once __DIR__ . '/../layout/admin_footer.php'; ?>
+<?php require_once __DIR__ . '/../../layout/admin_footer.php'; ?>
