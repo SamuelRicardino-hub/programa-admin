@@ -74,7 +74,7 @@ exit;
             </div>
 
             <div class="d-flex justify-content-between">
-                <a href="turmas.php" class="btn btn-secondary">
+                <a href="turmas_lista.php" class="btn btn-secondary">
                     Voltar
                 </a>
 

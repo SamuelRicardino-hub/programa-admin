@@ -30,6 +30,7 @@ $preCadastros = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <th>Nome</th>
                         <th>CPF</th>
                         <th>Email</th>
+                        <th>Status</th>
                         <th>Data</th>
                         <th width="200">Ações</th>
                     </tr>
