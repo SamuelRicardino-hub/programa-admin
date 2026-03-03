@@ -3,7 +3,6 @@ require_once __DIR__ . "/../../config/protect.php";
 require_once __DIR__ . "/../../config/conexao.php";
 require_once __DIR__ . "/../../layout/admin_header.php";
 
-// Buscar turmas no banco
 $stmt = $pdo->query("SELECT id, nome, descricao FROM turmas ORDER BY id DESC");
 $turmas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -42,7 +41,7 @@ $turmas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <th>ID</th>
                     <th>Nome</th>
                     <th>Descrição</th>
-                    <th width="180">Ações</th>
+                    <th width="225">Ações</th>
                 </tr>
             </thead>
             <tbody>
@@ -54,11 +53,16 @@ $turmas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <td><?= htmlspecialchars($t['nome']) ?></td>
                             <td><?= htmlspecialchars($t['descricao']) ?></td>
                             <td>
+                                <a href="participantes_lista.php?turma_id=<?= $t['id'] ?>"
+                                    class="btn btn-sm btn-info">
+                                    Ver Alunos
+                                </a>
+
                                 <a href="turmas_editar.php?id=<?= $t['id'] ?>"
                                     class="btn btn-sm btn-primary">
                                     Editar
                                 </a>
-
+                            
                                 <a href="turmas_excluir.php?id=<?= $t['id'] ?>"
                                     class="btn btn-sm btn-danger"
                                     onclick="return confirm('Deseja excluir?')">

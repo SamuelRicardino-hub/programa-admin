@@ -3,8 +3,7 @@ require_once __DIR__ . "/../config/conexao.php";
 
 $nome = trim($_POST['nome']);
 $cpf = trim($_POST['cpf']);
-$idade = intval($_POST['idade']);
-$naturalidade = trim($_POST['naturalidade']);
+$data_nascimento = intval($_POST['data_nascimento']);
 $telefone = trim($_POST['telefone']);
 $email = trim($_POST['email']);
 
@@ -22,15 +21,14 @@ try {
     // Inserir
     $stmt = $pdo->prepare("
         INSERT INTO pre_cadastros
-        (nome, cpf, idade, naturalidade, telefone, email)
-        VALUES (?, ?, ?, ?, ?, ?)
+        (nome, cpf, data_nascimento, telefone, email)
+        VALUES (?, ?, ?, ?, ?)
     ");
 
     $stmt->execute([
         $nome,
         $cpf,
-        $idade,
-        $naturalidade,
+        $data_nascimento,
         $telefone,
         $email
     ]);

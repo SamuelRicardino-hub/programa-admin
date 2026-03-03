@@ -24,13 +24,8 @@
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Idade</label>
-                <input type="number" name="idade" class="form-control" required>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Naturalidade</label>
-                <input type="text" name="naturalidade" class="form-control">
+                <label class="form-label">Data de Nasciemento</label>
+                <input type="date" name="data_nascimento" class="form-control" required>
             </div>
 
             <div class="mb-3">

@@ -15,7 +15,7 @@ if (!$id) {
 
 /* Busca participante */
 $sql = $pdo->prepare("
-    SELECT id, nome, email, telefone, turma_id
+    SELECT id, nome, cpf, data_nascimento, email, telefone, turma_id
     FROM participantes
     WHERE id = :id
 ");
@@ -44,28 +44,44 @@ $turmas = $pdo->query("SELECT id, nome FROM turmas ORDER BY nome")->fetchAll();
         <div class="mb-3">
             <label class="form-label">Nome</label>
             <input type="text"
-                   name="nome"
+                name="nome"
+                class="form-control"
+                value="<?= htmlspecialchars($participante['nome']) ?>"
+                required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">CPF</label>
+            <input type="text"
+                name="cpf"
+                class="form-control"
+                value="<?= htmlspecialchars($participante['cpf']) ?>"
+                required>
+        </div>
+        
+        <div class="mb-3">
+            <label class="form-label">Data de Nascimento</label>
+            <input type="date"
+                   name="data_nascimento"
                    class="form-control"
-                   value="<?= htmlspecialchars($participante['nome']) ?>"
+                   value="<?= htmlspecialchars($participante['data_nascimento']) ?>"
                    required>
         </div>
-
 
         <div class="mb-3">
             <label class="form-label">Email</label>
             <input type="email"
-                   name="email"
-                   class="form-control"
-                   value="<?= htmlspecialchars($participante['email']) ?>"
-                   required>
+                name="email"
+                class="form-control"
+                value="<?= htmlspecialchars($participante['email']) ?>"
+                required>
         </div>
 
         <div class="mb-3">
             <label class="form-label">Telefone</label>
             <input type="text"
-                   name="telefone"
-                   class="form-control"
-                   value="<?= htmlspecialchars($participante['telefone']) ?>">
+                name="telefone"
+                class="form-control"
+                value="<?= htmlspecialchars($participante['telefone']) ?>">
         </div>
 
         <div class="mb-3">
