@@ -4,21 +4,21 @@ require_once __DIR__ .'../config/conexao.php';
 
 $id    = $_POST['id'] ?? null;
 $nome  = trim($_POST['nome'] ?? '');
-$login = trim($_POST['login'] ?? '');
+$email = trim($_POST['email'] ?? '');
 $senha = $_POST['senha'] ?? '';
 
-if (!$id || $nome === '' || $login === '') {
+if (!$id || $nome === '' || $email === '') {
     header("Location: usuarios_lista.php");
     exit;
 }
 
 if ($senha !== '') {
-    // Atualiza com nova senha
+   
     $hash = password_hash($senha, PASSWORD_DEFAULT);
 
     $sql = $pdo->prepare("
         UPDATE usuarios
-        SET nome = :nome, login = :login, senha = :senha
+        SET nome = :nome, email = :email, senha = :senha
         WHERE id = :id
     ");
     $sql->bindParam(':senha', $hash);
@@ -26,13 +26,13 @@ if ($senha !== '') {
     // Atualiza sem alterar senha
     $sql = $pdo->prepare("
         UPDATE usuarios
-        SET nome = :nome, login = :login
+        SET nome = :nome, email = :email
         WHERE id = :id
     ");
 }
 
 $sql->bindParam(':nome', $nome);
-$sql->bindParam(':login', $login);
+$sql->bindParam(':email', $email);
 $sql->bindParam(':id', $id);
 $sql->execute();
 

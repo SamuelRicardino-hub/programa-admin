@@ -3,8 +3,9 @@ require_once __DIR__ . "/../../config/protect.php";
 require_once __DIR__ . "/../../config/conexao.php";
 require_once __DIR__ . "/../../layout/admin_header.php";
 
-$titulo = "Editar Participante";
+$turma_id = $_GET['turma_id'] ?? null;
 
+$titulo = "Editar Participante";
 
 $id = $_GET['id'] ?? null;
 
@@ -13,7 +14,6 @@ if (!$id) {
     exit;
 }
 
-/* Busca participante */
 $sql = $pdo->prepare("
     SELECT id, nome, cpf, data_nascimento, email, telefone, turma_id
     FROM participantes
@@ -29,7 +29,6 @@ if (!$participante) {
     exit;
 }
 
-/* Busca turmas */
 $turmas = $pdo->query("SELECT id, nome FROM turmas ORDER BY nome")->fetchAll();
 ?>
 
@@ -39,6 +38,7 @@ $turmas = $pdo->query("SELECT id, nome FROM turmas ORDER BY nome")->fetchAll();
 
     <form action="participantes_atualizar.php" method="post">
 
+        <input type="hidden" name="turma_id" value="<?= $turma_id ?>">
         <input type="hidden" name="id" value="<?= $participante['id'] ?>">
 
         <div class="mb-3">
@@ -97,7 +97,7 @@ $turmas = $pdo->query("SELECT id, nome FROM turmas ORDER BY nome")->fetchAll();
         </div>
 
         <div class="d-flex justify-content-between">
-            <a href="participantes_lista.php" class="btn btn-secondary">
+            <a href="participantes_lista.php?turma_id=<?= $turma_id ?>" class="btn btn-secondary">
                 Voltar
             </a>
 

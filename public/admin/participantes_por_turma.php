@@ -5,7 +5,6 @@ require_once __DIR__ . "/../../layout/admin_header.php";
 
 $turma_id = $_GET['turma_id'] ?? null;
 
-// Buscar todas as turmas
 $turmas = $pdo->query("
     SELECT id, nome 
     FROM turmas 
@@ -17,12 +16,10 @@ $nomeTurma = null;
 
 if ($turma_id) {
 
-    // Buscar nome da turma
     $stmtTurma = $pdo->prepare("SELECT nome FROM turmas WHERE id = ?");
     $stmtTurma->execute([$turma_id]);
     $nomeTurma = $stmtTurma->fetchColumn();
 
-    // Buscar participantes da turma
     $stmt = $pdo->prepare("
         SELECT nome, cpf, telefone, email, idade
         FROM participantes

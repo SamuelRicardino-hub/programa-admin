@@ -9,7 +9,7 @@ if (!$id) {
     exit;
 }
 
-$sql = $pdo->prepare("SELECT id, nome, login FROM usuarios WHERE id = :id");
+$sql = $pdo->prepare("SELECT id, nome, email FROM usuarios WHERE id = :id");
 $sql->bindParam(':id', $id, PDO::PARAM_INT);
 $sql->execute();
 
@@ -46,11 +46,11 @@ require_once __DIR__ . '/../layout/header.php';
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Login</label>
+                        <label class="form-label">Email</label>
                         <input type="text"
-                               name="login"
+                               name="email"
                                class="form-control"
-                               value="<?= htmlspecialchars($usuario['login']) ?>"
+                               value="<?= htmlspecialchars($usuario['email']) ?>"
                                required>
                     </div>
 

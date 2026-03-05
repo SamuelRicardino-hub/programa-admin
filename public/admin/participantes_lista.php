@@ -110,12 +110,12 @@ if ($turma_id) {
                             <td><?= htmlspecialchars($p['turma']) ?></td>
                             <td class="text-center">
 
-                                <a href="participantes_editar.php?id=<?= $p['id'] ?>"
+                                <a href="participantes_editar.php?id=<?= $p['id'] ?>&turma_id=<?= $turma_id ?>"
                                     class="btn btn-sm btn-warning">
                                     Editar
                                 </a>
 
-                                <a href="participantes_excluir.php?id=<?= $p['id'] ?>"
+                                <a href="participantes_excluir.php?id=<?= $p['id'] ?>&turma_id=<?= $turma_id ?>"
                                     class="btn btn-sm btn-danger"
                                     onclick="return confirm('Deseja excluir este participante?')">
                                     Excluir

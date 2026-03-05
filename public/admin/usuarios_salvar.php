@@ -1,39 +1,48 @@
 <?php
 session_start();
-require_once __DIR__ . "/../../config/protect.php";
-require_once __DIR__ .'/../../config/conexao.php';
 
-if (!isset($_SESSION['usuario'])) {
-    header("Location: login.php");
-    exit;
-}
+require_once __DIR__ . "/../../config/protect.php";
+require_once __DIR__ . "/../../config/conexao.php";
+
 
 $id    = $_POST['id'] ?? null;
-$nome  = $_POST['nome'];
-$email = $_POST['email'];
+$nome  = trim($_POST['nome']);
+$email = trim($_POST['email']);
 $senha = $_POST['senha'] ?? '';
+$nivel = $_POST['nivel'];
 
 if ($id) {
-    // EDITAR
+
     if ($senha) {
+
         $hash = password_hash($senha, PASSWORD_DEFAULT);
+
         $sql = $pdo->prepare(
-            "UPDATE usuarios SET nome=?, email=?, senha=? WHERE id=?"
+            "UPDATE usuarios SET nome=?, email=?, senha=?, nivel=? WHERE id=?"
         );
-        $sql->execute([$nome, $email, $hash, $id]);
+        $sql->execute([$nome, $email, $hash, $nivel, $id]);
+
     } else {
+
         $sql = $pdo->prepare(
-            "UPDATE usuarios SET nome=?, email=? WHERE id=?"
+            "UPDATE usuarios SET nome=?, email=?, nivel=? WHERE id=?"
         );
-        $sql->execute([$nome, $email, $id]);
+        $sql->execute([$nome, $email, $nivel, $id]);
+
     }
+
 } else {
-    // NOVO
+
+    if (!$senha) {
+        die("Senha obrigatória para novo usuário.");
+    }
+
     $hash = password_hash($senha, PASSWORD_DEFAULT);
+
     $sql = $pdo->prepare(
-        "INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)"
+        "INSERT INTO usuarios (nome, email, senha, nivel) VALUES (?, ?, ?, ?)"
     );
-    $sql->execute([$nome, $email, $hash]);
+    $sql->execute([$nome, $email, $hash, $nivel]);
 }
 
 header("Location: usuarios_lista.php");

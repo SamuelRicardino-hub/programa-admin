@@ -22,7 +22,6 @@ $preCadastros = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="mb-3">
                 <a href="?status=pendente" class="btn btn-outline-warning btn-sm">Pendentes</a>
                 <a href="?status=aprovado" class="btn btn-outline-success btn-sm">Aprovados</a>
-                <a href="?status=recusado" class="btn btn-outline-danger btn-sm">Recusados</a>
             </div>
             <table class="table table-bordered table-hover">
                 <thead class="table-light">

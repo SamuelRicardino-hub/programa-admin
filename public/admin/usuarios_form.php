@@ -28,33 +28,51 @@ $titulo = $usuario ? "Editar Usuário" : "Novo Usuário";
                 <form action="usuarios_salvar.php" method="post">
 
                     <input type="hidden" name="id"
-                           value="<?= $usuario['id'] ?? '' ?>">
+                        value="<?= $usuario['id'] ?? '' ?>">
 
                     <div class="mb-3">
                         <label class="form-label">Nome</label>
                         <input type="text"
-                               name="nome"
-                               class="form-control"
-                               value="<?= htmlspecialchars($usuario['nome'] ?? '') ?>"
-                               required>
+                            name="nome"
+                            class="form-control"
+                            value="<?= htmlspecialchars($usuario['nome'] ?? '') ?>"
+                            required>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Login</label>
+                        <label class="form-label">Email</label>
                         <input type="text"
-                               name="login"
-                               class="form-control"
-                               value="<?= htmlspecialchars($usuario['login'] ?? '') ?>"
-                               required>
+                            name="email"
+                            class="form-control"
+                            value="<?= htmlspecialchars($usuario['email'] ?? '') ?>"
+                            required>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Senha</label>
                         <input type="password"
-                               name="senha"
-                               class="form-control"
-                               placeholder="<?= $usuario ? 'Nova senha (opcional)' : 'Senha' ?>"
-                               <?= $usuario ? '' : 'required' ?>>
+                            name="senha"
+                            class="form-control"
+                            placeholder="<?= $usuario ? 'Nova senha (opcional)' : 'Senha' ?>"
+                            <?= $usuario ? '' : 'required' ?>>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Nível de Acesso</label>
+
+                        <select name="nivel" class="form-select" required>
+
+                            <option value="admin"
+                                <?= ($usuario['nivel'] ?? '') == 'admin' ? 'selected' : '' ?>>
+                                Administrador
+                            </option>
+
+                            <option value="usuario"
+                                <?= ($usuario['nivel'] ?? '') == 'usuario' ? 'selected' : '' ?>>
+                                Usuário
+                            </option>
+
+                        </select>
                     </div>
 
                     <div class="d-flex justify-content-between">

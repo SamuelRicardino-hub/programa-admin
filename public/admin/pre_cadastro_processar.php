@@ -10,7 +10,6 @@ if (!$id || !$acao) {
     exit;
 }
 
-// Buscar pré-cadastro
 $stmt = $pdo->prepare("SELECT * FROM pre_cadastros WHERE id = ?");
 $stmt->execute([$id]);
 $pre = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -22,19 +21,19 @@ if (!$pre) {
 
 if ($acao === "aprovar") {
 
-    // Inserir em participantes
     $stmt = $pdo->prepare("
-        INSERT INTO participantes (nome, cpf, email, telefone)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO participantes (nome, cpf, data_nascimento, email, telefone, turma_id)
+        VALUES (?, ?, ?, ?, ?, ?)
     ");
     $stmt->execute([
         $pre['nome'],
         $pre['cpf'],
+        $pre['data_nascimento'],
         $pre['email'],
-        $pre['telefone']
+        $pre['telefone'],
+        $turma_id
     ]);
 
-    // Atualizar status
     $stmt = $pdo->prepare("UPDATE pre_cadastros SET status = 'aprovado' WHERE id = ?");
     $stmt->execute([$id]);
 
