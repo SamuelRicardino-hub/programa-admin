@@ -7,7 +7,7 @@
 <?php endif; ?>
 
 <div class="hero">
-    <h1 class="mb-4">Bem-vindo ao Programa Social</h1>
+    <h1 class="mb-4">Bem-vindo a Assistência Social</h1>
 
     <p class="lead mb-4">
         Faça seu pré-cadastro para participar do programa.
