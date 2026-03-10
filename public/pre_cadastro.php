@@ -37,6 +37,16 @@
                 <label class="form-label">Email</label>
                 <input type="email" name="email" class="form-control">
             </div>
+            
+            <div class="mb-3">
+                <label>Endereço</label>
+                <input type="text" name="endereco" class="form-control">
+            </div>
+
+            <div class="mb-3">
+                <label>Bairro</label>
+                <input type="text" name="bairro" class="form-control">
+            </div>
 
             <button type="submit" class="btn btn-primary w-100">
                 Enviar Pré-Cadastro

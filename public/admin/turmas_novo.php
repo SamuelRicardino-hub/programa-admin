@@ -9,6 +9,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $nome = trim($_POST['nome'] ?? '');
     $descricao = trim($_POST['descricao'] ?? '');
+    $responsavel = trim($_POST['responsavel']?? '');
+    $data_inicio = ($_POST['data_inicio']?? '');
+    $data_fim = ($_POST['data_fim']?? '');
     $status = $_POST['status'] ?? 'ativa';
 
     if (empty($nome)) {
@@ -24,14 +27,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
 
             $stmt = $pdo->prepare("
-    INSERT INTO turmas (nome, descricao, status, data_criacao)
-    VALUES (?, ?, ?, NOW())
+    INSERT INTO turmas (nome, descricao, responsavel, data_inicio, data_fim, status, criado_em)
+    VALUES (?, ?, ?, ?, ?, ?, NOW())
 ");
 
-            $stmt->execute([$nome, $descricao, $status]);
+            $stmt->execute([$nome, $descricao, $responsavel, $data_inicio, $data_fim, $status]);
 
             header("Location: turmas_lista.php?msg=criado");
-exit;
+            exit;
         }
     }
 }
@@ -63,6 +66,24 @@ exit;
                 <textarea name="descricao"
                     class="form-control"
                     rows="3"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label>Responsável</label>
+                <input type="text" name="responsavel" class="form-control"
+                    value="<?= $turma['responsavel'] ?? '' ?>">
+            </div>
+
+            <div class="mb-3">
+                <label>Data de Início</label>
+                <input type="date" name="data_inicio" class="form-control"
+                    value="<?= $turma['data_inicio'] ?? '' ?>">
+            </div>
+
+            <div class="mb-3">
+                <label>Data de Fim</label>
+                <input type="date" name="data_fim" class="form-control"
+                    value="<?= $turma['data_fim'] ?? '' ?>">
             </div>
 
             <div class="mb-3">

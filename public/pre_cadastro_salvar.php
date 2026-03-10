@@ -6,6 +6,8 @@ $cpf = trim($_POST['cpf']);
 $data_nascimento = ($_POST['data_nascimento']);
 $telefone = trim($_POST['telefone']);
 $email = trim($_POST['email']);
+$endereco = trim($_POST['endereco']);
+$bairro = trim($_POST['bairro']);
 
 try {
 
@@ -19,8 +21,8 @@ try {
 
     $stmt = $pdo->prepare("
         INSERT INTO pre_cadastros
-        (nome, cpf, data_nascimento, telefone, email)
-        VALUES (?, ?, ?, ?, ?)
+        (nome, cpf, data_nascimento, telefone, email, endereco, bairro)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     ");
 
     $stmt->execute([
@@ -28,7 +30,9 @@ try {
         $cpf,
         $data_nascimento,
         $telefone,
-        $email
+        $email,
+        $endereco,
+        $bairro
     ]);
 
     header("Location: index.php?sucesso=1");

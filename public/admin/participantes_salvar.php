@@ -10,6 +10,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $nome      = trim($_POST['nome'] ?? '');
 $telefone  = trim($_POST['telefone'] ?? '');
 $email     = trim($_POST['email'] ?? '');
+$endereco = trim($_POST['endereco']);
+$bairro = trim($_POST['bairro']);
 $turma_id  = $_POST['turma_id'] ?? null;
 
 if ($nome === '' || $email === '' || !$turma_id) {
@@ -26,17 +28,21 @@ if ($check->fetch()) {
     exit;
 }
 
-$sql = $pdo->prepare("
-    INSERT INTO participantes (nome, telefone, email, turma_id)
-    VALUES (:nome, :telefone, :email, :turma_id)
-");
+$insert = $pdo->prepare("
+            INSERT INTO participantes
+            (nome, cpf, data_nascimento, telefone, email, endereco, bairro, turma_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ");
 
-$sql->execute([
-    ':nome'     => $nome,
-    ':telefone' => $telefone,
-    ':email'    => $email,
-    ':turma_id' => $turma_id
-]);
-
+        $insert->execute([
+            $pre['nome'],
+            $pre['cpf'],
+            $pre['data_nascimento'],
+            $pre['telefone'],
+            $pre['email'],
+            $pre['endereco'],
+            $pre['bairro'],
+            $turma_id
+        ]);
 header("Location: participantes_lista.php");
 exit;

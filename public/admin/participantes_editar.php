@@ -77,6 +77,24 @@ $turmas = $pdo->query("SELECT id, nome FROM turmas ORDER BY nome")->fetchAll();
         </div>
 
         <div class="mb-3">
+            <label class="form-label">Endereco</label>
+            <input type="text"
+                name="endereco"
+                class="form-control"
+                value="<?= htmlspecialchars($participante['endereco']) ?>"
+                required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Bairro</label>
+            <input type="text"
+                name="bairro"
+                class="form-control"
+                value="<?= htmlspecialchars($participante['bairro']) ?>"
+                required>
+        </div>
+
+        <div class="mb-3">
             <label class="form-label">Telefone</label>
             <input type="text"
                 name="telefone"

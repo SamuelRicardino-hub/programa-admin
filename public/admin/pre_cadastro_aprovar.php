@@ -40,8 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $insert = $pdo->prepare("
             INSERT INTO participantes
-            (nome, cpf, data_nascimento, telefone, email, turma_id)
-            VALUES (?, ?, ?, ?, ?, ?)
+            (nome, cpf, data_nascimento, telefone, email, endereco, bairro, turma_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ");
 
         $insert->execute([
@@ -50,6 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pre['data_nascimento'],
             $pre['telefone'],
             $pre['email'],
+            $pre['endereco'],
+            $pre['bairro'],
             $turma_id
         ]);
 

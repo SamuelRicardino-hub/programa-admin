@@ -35,51 +35,43 @@ $turmas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <div class="card shadow-sm">
     <div class="card-body">
 
-        <table class="table table-striped table-hover">
-            <thead class="table-dark">
+        <table class="table table-striped">
+
+            <tr>
+                <th>Nome</th>
+                <th>Responsável</th>
+                <th>Início</th>
+                <th>Fim</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+
+            <?php foreach ($turmas as $t): ?>
+
                 <tr>
-                    <th>ID</th>
-                    <th>Nome</th>
-                    <th>Descrição</th>
-                    <th width="225">Ações</th>
+
+                    <td><?= $t['nome'] ?></td>
+                    <td><?= $t['responsavel'] ?></td>
+                    <td><?= $t['data_inicio'] ?></td>
+                    <td><?= $t['data_fim'] ?></td>
+                    <td><?= $t['status'] ?></td>
+
+                    <td>
+
+                        <a href="turma_form.php?id=<?= $t['id'] ?>" class="btn btn-sm btn-primary">
+                            Editar
+                        </a>
+
+                        <a href="turma_excluir.php?id=<?= $t['id'] ?>" class="btn btn-sm btn-danger">
+                            Excluir
+                        </a>
+
+                    </td>
+
                 </tr>
-            </thead>
-            <tbody>
 
-                <?php if (!empty($turmas)): ?>
-                    <?php foreach ($turmas as $t): ?>
-                        <tr>
-                            <td><?= $t['id'] ?></td>
-                            <td><?= htmlspecialchars($t['nome']) ?></td>
-                            <td><?= htmlspecialchars($t['descricao']) ?></td>
-                            <td>
-                                <a href="participantes_lista.php?turma_id=<?= $t['id'] ?>"
-                                    class="btn btn-sm btn-info">
-                                    Ver Alunos
-                                </a>
+            <?php endforeach; ?>
 
-                                <a href="turmas_editar.php?id=<?= $t['id'] ?>"
-                                    class="btn btn-sm btn-primary">
-                                    Editar
-                                </a>
-                            
-                                <a href="turmas_excluir.php?id=<?= $t['id'] ?>"
-                                    class="btn btn-sm btn-danger"
-                                    onclick="return confirm('Deseja excluir?')">
-                                    Excluir
-                                </a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <tr>
-                        <td colspan="4" class="text-center">
-                            Nenhuma turma cadastrada.
-                        </td>
-                    </tr>
-                <?php endif; ?>
-
-            </tbody>
         </table>
 
     </div>

@@ -69,7 +69,7 @@ if ($turma_id) {
                         <input type="text"
                             name="busca"
                             class="form-control"
-                            placeholder="Buscar por nome..."
+                            placeholder="Buscar participante"
                             value="<?= htmlspecialchars($busca ?? '') ?>">
                     </div>
 
