@@ -1,7 +1,7 @@
 <?php
 
 $host = "localhost";
-$db   = "programa-admin";
+$db   = "programa_admin";
 $user = "root";
 $pass = "";
 
