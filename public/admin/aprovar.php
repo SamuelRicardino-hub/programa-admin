@@ -1,5 +1,9 @@
 <?php
 require_once __DIR__ . "/../../config/conexao.php";
+require_once '/../../config/auth.php';
+
+auth();
+can('admin');
 
 $id = intval($_GET['id']);
 

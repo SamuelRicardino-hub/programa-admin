@@ -1,7 +1,7 @@
 <?php
-require_once __DIR__ . "/../../config/protect.php";
 require_once __DIR__ . "/../../config/conexao.php";
 require_once __DIR__ . "/../../layout/admin_header.php";
+
 
 $recentes = $pdo->query("
 SELECT nome, criado_em

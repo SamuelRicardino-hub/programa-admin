@@ -1,8 +1,13 @@
 <?php
-require_once __DIR__ . "/../../config/protect.php";
 require_once __DIR__ . "/../../config/conexao.php";
 require_once __DIR__ . '/../../config/funcoes.php';
 require_once __DIR__ . "/../../layout/admin_header.php";
+require_once __DIR__ . '/../../config/auth.php';
+echo "<pre>";
+var_dump($_SESSION);
+exit;
+auth();
+canAny(['admin', 'atendente']);
 
 $turma_id = $_GET['turma_id'] ?? null;
 $busca    = $_GET['busca'] ?? null;

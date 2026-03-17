@@ -1,6 +1,9 @@
 <?php
-require_once __DIR__ . "/../../config/protect.php";
 require_once __DIR__ .'../config/conexao.php';
+require_once __DIR__ .'/../../config/auth.php';
+
+auth();
+can('admin');
 
 $id    = $_POST['id'] ?? null;
 $nome  = trim($_POST['nome'] ?? '');

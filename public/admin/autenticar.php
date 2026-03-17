@@ -1,6 +1,5 @@
 <?php
 session_start();
-require_once __DIR__ . "/../../config/protect.php";
 // Evita acesso direto
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: login.php");
@@ -16,6 +15,17 @@ if ($email === '' || $senha === '') {
     header("Location: login.php?erro=1");
     exit;
 }
+
+session_start();
+
+// SEGURANÇA REAL
+session_regenerate_id(true);
+
+$_SESSION['usuario'] = [
+    'id' => $usuario['id'],
+    'nome' => $usuario['nome'],
+    'nivel' => $usuario['nivel']
+];
 
 // Busca usuário
 $sql = $pdo->prepare("

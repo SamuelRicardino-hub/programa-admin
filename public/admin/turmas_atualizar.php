@@ -1,6 +1,11 @@
 <?php
 require_once __DIR__ . "/../../config/protect.php";
 require_once __DIR__ .'/../../config/conexao.php';
+require_once __DIR__ . '/../../config/auth.php';
+
+auth();
+canAny(['admin', 'atendente']);
+
 
 // Só aceita POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

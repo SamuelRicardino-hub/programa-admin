@@ -1,7 +1,10 @@
 <?php
-require_once __DIR__ . "/../../config/protect.php";
 require_once __DIR__ . "/../../config/conexao.php";
 require_once __DIR__ . "/../../layout/admin_header.php";
+require_once __DIR__ .'/../../config/auth.php';
+
+auth();
+can('admin');
 
 $id = $_GET['id'] ?? null;
 $usuario = null;
@@ -67,9 +70,9 @@ $titulo = $usuario ? "Editar Usuário" : "Novo Usuário";
                                 Administrador
                             </option>
 
-                            <option value="usuario"
-                                <?= ($usuario['nivel'] ?? '') == 'usuario' ? 'selected' : '' ?>>
-                                Usuário
+                            <option value="atendente"
+                                <?= ($usuario['nivel'] ?? '') == 'atendente' ? 'selected' : '' ?>>
+                                Atendente
                             </option>
 
                         </select>

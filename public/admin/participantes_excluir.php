@@ -1,6 +1,9 @@
 <?php
-require_once __DIR__ . "/../../config/protect.php";
 require_once __DIR__ .'/../../config/conexao.php';
+require_once __DIR__ . '/../../config/auth.php';
+
+auth();
+can('admin');
 
 $id = $_GET['id'] ?? null;
 $turma_id = $_GET['turma_id'] ?? null;

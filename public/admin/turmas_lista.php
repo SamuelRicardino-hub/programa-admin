@@ -1,9 +1,17 @@
 <?php
-require_once __DIR__ . "/../../config/protect.php";
 require_once __DIR__ . "/../../config/conexao.php";
 require_once __DIR__ . "/../../layout/admin_header.php";
+require_once __DIR__ . '/../../config/auth.php';
 
-$stmt = $pdo->query("SELECT id, nome, descricao FROM turmas ORDER BY id DESC");
+auth();
+canAny(['admin', 'atendente']);
+
+
+$stmt = $pdo->query("
+    SELECT id, nome, responsavel, data_inicio, data_fim, status
+    FROM turmas
+    ORDER BY id DESC
+");
 $turmas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
@@ -50,19 +58,19 @@ $turmas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                 <tr>
 
-                    <td><?= $t['nome'] ?></td>
-                    <td><?= $t['responsavel'] ?></td>
-                    <td><?= $t['data_inicio'] ?></td>
-                    <td><?= $t['data_fim'] ?></td>
-                    <td><?= $t['status'] ?></td>
+                    <td><?= htmlspecialchars($t['nome']) ?></td>
+                    <td><?= htmlspecialchars($t['responsavel']) ?></td>
+                    <td><?= htmlspecialchars($t['data_inicio']) ?></td>
+                    <td><?= htmlspecialchars($t['data_fim']) ?></td>
+                    <td><?= htmlspecialchars($t['status']) ?></td>
 
                     <td>
 
-                        <a href="turma_form.php?id=<?= $t['id'] ?>" class="btn btn-sm btn-primary">
+                        <a href="turmas_editar.php?id=<?= $t['id'] ?>" class="btn btn-sm btn-primary">
                             Editar
                         </a>
 
-                        <a href="turma_excluir.php?id=<?= $t['id'] ?>" class="btn btn-sm btn-danger">
+                        <a href="turmas_excluir.php?id=<?= $t['id'] ?>" class="btn btn-sm btn-danger">
                             Excluir
                         </a>
 

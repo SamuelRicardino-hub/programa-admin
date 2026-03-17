@@ -1,7 +1,10 @@
 <?php
-require_once __DIR__ . "/../../config/protect.php";
 require_once __DIR__ . "/../../config/conexao.php";
 require_once __DIR__ . "/../../layout/admin_header.php";
+require_once __DIR__ . '/../../config/auth.php';
+
+auth();
+canAny(['admin', 'atendente']);
 
 $titulo = "Editar Turma";
 
@@ -13,7 +16,7 @@ if (!$id) {
     exit;
 }
 
-$sql = $pdo->prepare("SELECT id, nome, descricao FROM turmas WHERE id = :id");
+$sql = $pdo->prepare("SELECT id, nome, descricao, responsavel, data_inicio, data_fim, status FROM turmas WHERE id = :id");
 $sql->bindParam(':id', $id, PDO::PARAM_INT);
 $sql->execute();
 
@@ -48,6 +51,41 @@ if (!$turma) {
                 <textarea name="descricao"
                           class="form-control"
                           rows="3"><?= htmlspecialchars($turma['descricao']) ?></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Responsável</label>
+                <input type="text"
+                       name="responsavel"
+                       class="form-control"
+                       value="<?= htmlspecialchars($turma['responsavel']) ?>"
+                       required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Data Início</label>
+                <input type="date"
+                       name="data_inicio"
+                       class="form-control"
+                       value="<?= htmlspecialchars($turma['data_inicio']) ?>"
+                       required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Data Fim</label>
+                <input type="date"
+        |               name="data_fim"
+                       class="form-control"
+                       value="<?= htmlspecialchars($turma['data_fim']) ?>"
+                       required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-select">
+                    <option value="ativa">Ativa</option>
+                    <option value="inativa">Inativa</option>
+                </select>
             </div>
 
             <button type="submit" class="btn btn-primary">

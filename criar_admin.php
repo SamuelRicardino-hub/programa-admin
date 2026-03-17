@@ -1,17 +1,24 @@
 <?php
 require_once __DIR__ . "/config/conexao.php";
 
-$senhaHash = password_hash("123456", PASSWORD_DEFAULT);
+try {
 
-$stmt = $pdo->prepare("
-    INSERT INTO usuarios (nome, email, senha)
-    VALUES (?, ?, ?)
-");
+    $senhaHash = password_hash("123456", PASSWORD_DEFAULT);
 
-$stmt->execute([
-    "Administrador",
-    "admin@email.com",
-    $senhaHash
-]);
+    $sql = $pdo->prepare("
+        INSERT INTO usuarios (nome, email, senha, nivel)
+        VALUES (?, ?, ?, ?)
+    ");
 
-echo "Usuário admin criado com sucesso!";
+    $sql->execute([
+        "Administrador",
+        "admin@email.com",
+        $senhaHash,
+        "admin"
+    ]);
+
+    echo "Admin criado com sucesso!";
+
+} catch (PDOException $e) {
+    echo "Erro: " . $e->getMessage();
+}
