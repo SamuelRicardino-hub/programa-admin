@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . "/../../config/protect.php";
 require_once __DIR__ . "/../../config/conexao.php";
+require_once __DIR__ . '/../../config/logs.php';
 
 $id = $_GET['id'] ?? null;
 $acao = $_GET['acao'] ?? null;
@@ -36,7 +37,7 @@ if ($acao === "aprovar") {
 
     $stmt = $pdo->prepare("UPDATE pre_cadastros SET status = 'aprovado' WHERE id = ?");
     $stmt->execute([$id]);
-
+    
 }
 
 if ($acao === "rejeitar") {
@@ -44,6 +45,13 @@ if ($acao === "rejeitar") {
     $stmt = $pdo->prepare("UPDATE pre_cadastros SET status = 'rejeitado' WHERE id = ?");
     $stmt->execute([$id]);
 
+    registrarLog(
+        $pdo,
+        'REJEICAO',
+        'pre_cadastros',
+        $id,
+        "Rejeitou pré-cadastro ID $id"
+    );
 }
 
 header("Location: pre_cadastros.php");

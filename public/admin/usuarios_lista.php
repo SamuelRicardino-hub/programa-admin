@@ -4,7 +4,7 @@ require_once __DIR__ . "/../../layout/admin_header.php";
 require_once __DIR__ . '/../../config/auth.php';
 
 auth();
-canAny(['admin', 'atendente']);
+can('admin');
 
 $usuarios = $pdo->query("
     SELECT id, nome, email 

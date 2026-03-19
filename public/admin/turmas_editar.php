@@ -3,6 +3,7 @@ require_once __DIR__ . "/../../config/conexao.php";
 require_once __DIR__ . "/../../layout/admin_header.php";
 require_once __DIR__ . '/../../config/auth.php';
 
+
 auth();
 canAny(['admin', 'atendente']);
 

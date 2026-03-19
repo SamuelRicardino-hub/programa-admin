@@ -1,7 +1,7 @@
 <?php
-require_once __DIR__ .'../config/conexao.php';
+require_once __DIR__ . '../config/conexao.php';
 require_once __DIR__ . '/../../config/auth.php';
-
+require_once __DIR__ . '/../../config/log.php';
 auth();
 canAny(['admin', 'atendente']);
 
@@ -22,7 +22,7 @@ if ($nome === '') {
 
 if ($id) {
 
-$sql = $pdo->prepare("
+    $sql = $pdo->prepare("
 UPDATE turmas SET
 nome=?,
 descricao=?,
@@ -33,33 +33,41 @@ status=?
 WHERE id=?
 ");
 
-$sql->execute([
-$nome,
-$descricao,
-$responsavel,
-$data_inicio,
-$data_fim,
-$status,
-$id
-]);
+    $turmaId = $pdo->lastInsertId();
 
+    registrarLog(
+        $pdo,
+        'CREATE',
+        'turmas',
+        $turmaId,
+        "Criou turma: $nome"
+    );
+
+    $sql->execute([
+        $nome,
+        $descricao,
+        $responsavel,
+        $data_inicio,
+        $data_fim,
+        $status,
+        $id
+    ]);
 } else {
 
-$sql = $pdo->prepare("
+    $sql = $pdo->prepare("
 INSERT INTO turmas
 (nome, descricao, responsavel, data_inicio, data_fim, status)
 VALUES (?, ?, ?, ?, ?, ?)
 ");
 
-$sql->execute([
-$nome,
-$descricao,
-$responsavel,
-$data_inicio,
-$data_fim,
-$status
-]);
-
+    $sql->execute([
+        $nome,
+        $descricao,
+        $responsavel,
+        $data_inicio,
+        $data_fim,
+        $status
+    ]);
 }
 
 header("Location: turmas_lista.php");

@@ -3,9 +3,6 @@ require_once __DIR__ . "/../../config/conexao.php";
 require_once __DIR__ . '/../../config/funcoes.php';
 require_once __DIR__ . "/../../layout/admin_header.php";
 require_once __DIR__ . '/../../config/auth.php';
-echo "<pre>";
-var_dump($_SESSION);
-exit;
 auth();
 canAny(['admin', 'atendente']);
 

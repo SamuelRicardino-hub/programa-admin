@@ -74,6 +74,11 @@ $turmas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             Excluir
                         </a>
 
+                        <a href="relatorio_turma.php?turma_id=<?= $t['id'] ?>"
+                            class="btn btn-sm btn-danger" target="_blank">
+                            📄 PDF
+                        </a>
+
                     </td>
 
                 </tr>

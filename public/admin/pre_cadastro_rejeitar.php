@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . "/../../config/conexao.php";
 require_once __DIR__ . "/../../config/protect.php";
+require_once __DIR__ . '/../../config/log.php';
 
 $id = intval($_GET['id']);
 

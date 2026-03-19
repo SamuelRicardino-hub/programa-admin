@@ -39,6 +39,11 @@ if (session_status() === PHP_SESSION_NONE) {
                 <li class="nav-item mt-4">
                     <a href="/programa-admin/public/admin/logout.php" class="nav-link text-danger">Sair</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="logs_lista.php">
+                        Logs
+                    </a>
+                </li>
             </ul>
         </div>
 

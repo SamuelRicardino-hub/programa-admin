@@ -1,7 +1,9 @@
 <?php
-require_once __DIR__ . "/../../config/protect.php";
+require_once __DIR__ . "/../../config/auth.php";
 require_once __DIR__ . "/../../config/conexao.php";
 require_once __DIR__ . "/../../layout/admin_header.php";
+
+
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -21,7 +23,7 @@ if ($pre['status'] !== 'pendente') {
 }
 
 $turmas = $pdo->query("SELECT id, nome FROM turmas WHERE status = 'ativa' ORDER BY nome")
-              ->fetchAll(PDO::FETCH_ASSOC);
+    ->fetchAll(PDO::FETCH_ASSOC);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -66,7 +68,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         header("Location: pre_cadastros.php?msg=aprovado");
         exit;
-
     } catch (Exception $e) {
         $pdo->rollBack();
         $erro = $e->getMessage();
