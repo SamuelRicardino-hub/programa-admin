@@ -104,6 +104,12 @@ $turmas = $pdo->query("
         </a>
     </div>
 
+    <div class="col-md-3">
+        <a href="turmas_lista.php" class="btn btn-dark w-100">
+            📚 Ver Turmas
+        </a>
+    </div>
+
 </div>
 
 <!-- 📋 ÚLTIMOS PRÉ-CADASTROS -->

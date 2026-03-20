@@ -66,17 +66,26 @@ $turmas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                     <td>
 
-                        <a href="turmas_editar.php?id=<?= $t['id'] ?>" class="btn btn-sm btn-primary">
-                            Editar
+                        <a href="turmas_editar.php?id=<?= $t['id'] ?>" class="btn btn-sm btn-warning">
+                            ✏️ Editar
                         </a>
 
                         <a href="turmas_excluir.php?id=<?= $t['id'] ?>" class="btn btn-sm btn-danger">
-                            Excluir
+                            ❌ Excluir
+                        </a>
+
+                        <a href="participantes_lista.php?turma_id=<?= $t['id'] ?>" class="btn btn-sm btn-dark">
+                            👥 Ver Participantes
                         </a>
 
                         <a href="relatorio_turma.php?turma_id=<?= $t['id'] ?>"
-                            class="btn btn-sm btn-danger" target="_blank">
+                            class="btn btn-sm btn-primary" target="_blank">
                             📄 PDF
+                        </a>
+
+                        <a href="exportar_participantes_excel.php?turma_id=<?= $turma_id ?>"
+                            class="btn btn-sm btn-success">
+                            📥 Excel
                         </a>
 
                     </td>

@@ -18,7 +18,7 @@ if (!$id) {
 }
 
 $sql = $pdo->prepare("
-    SELECT id, nome, cpf, data_nascimento, email, telefone, turma_id
+    SELECT id, nome, cpf, data_nascimento, email, endereco, bairro, telefone, turma_id
     FROM participantes
     WHERE id = :id
 ");
