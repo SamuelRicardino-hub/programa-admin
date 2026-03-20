@@ -45,13 +45,7 @@ if ($acao === "rejeitar") {
     $stmt = $pdo->prepare("UPDATE pre_cadastros SET status = 'rejeitado' WHERE id = ?");
     $stmt->execute([$id]);
 
-    registrarLog(
-        $pdo,
-        'REJEICAO',
-        'pre_cadastros',
-        $id,
-        "Rejeitou pré-cadastro ID $id"
-    );
+    
 }
 
 header("Location: pre_cadastros.php");

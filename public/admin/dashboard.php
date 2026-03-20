@@ -4,7 +4,7 @@ require_once __DIR__ . "/../../config/auth.php";
 require_once __DIR__ . "/../../layout/admin_header.php";
 
 auth();
-canAny(['admin','atendente']);
+canAny(['admin', 'atendente']);
 
 // 📊 MÉTRICAS
 $totalUsuarios = $pdo->query("SELECT COUNT(*) FROM usuarios")->fetchColumn();
@@ -101,6 +101,12 @@ $turmas = $pdo->query("
     <div class="col-md-3">
         <a href="participantes_lista.php" class="btn btn-dark w-100">
             👥 Ver Participantes
+        </a>
+    </div>
+    
+    <div class="col-md-3">
+        <a href="turmas_lista.php" class="btn btn-dark w-100">
+            📚 Ver Turmas
         </a>
     </div>
 
