@@ -2,6 +2,7 @@
 require_once __DIR__ . "/../../config/auth.php";
 require_once __DIR__ . "/../../config/conexao.php";
 require_once __DIR__ . "/../../layout/admin_header.php";
+require_once __DIR__ . '/../../config/logs.php';
 
 
 
@@ -63,6 +64,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             WHERE id = ?
         ");
         $update->execute([$id]);
+
+        registrarLog(
+        $pdo,
+        'APROVAÇÃO',
+        'pre_cadastros',
+        $id,
+        "Aprovou pré-cadastro ID $id"
+    );
 
         $pdo->commit();
 

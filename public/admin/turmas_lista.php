@@ -74,8 +74,12 @@ $turmas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             Excluir
                         </a>
 
+                        <a href="participantes_lista.php?id=<?= $t['id'] ?>" class="btn btn-sm btn-secondary">
+                            Ver Participantes
+                        </a>
+
                         <a href="relatorio_turma.php?turma_id=<?= $t['id'] ?>"
-                            class="btn btn-sm btn-danger" target="_blank">
+                            class="btn btn-sm btn-info" target="_blank">
                             📄 PDF
                         </a>
 

@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ .'/../../config/conexao.php';
 require_once __DIR__ .'/../../config/auth.php';
-require_once __DIR__ . '/../../config/log.php';
+require_once __DIR__ . '/../../config/logs.php';
 
 auth();
 can('admin');
