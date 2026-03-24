@@ -1,137 +1,134 @@
 <?php
-require_once __DIR__ . "/../../config/auth.php";
-require_once __DIR__ . "/../../config/conexao.php";
-require_once __DIR__ . "/../../layout/admin_header.php";
+require_once __DIR__ . '/../../config/conexao.php';
+require_once __DIR__ . '/../../config/auth.php';
 require_once __DIR__ . '/../../config/logs.php';
 
+auth();
+canAny(['admin', 'atendente']);
 
+$id = $_GET['id'] ?? null;
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+if (!$id) {
+    die("ID não informado");
+}
 
-$id = (int) $_GET['id'];
-
+// ==============================
+// 🔍 BUSCAR PRÉ-CADASTRO
+// ==============================
 $stmt = $pdo->prepare("SELECT * FROM pre_cadastros WHERE id = ?");
 $stmt->execute([$id]);
 $pre = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$pre) {
-    die("Pré-cadastro não encontrado.");
+    die("Pré-cadastro não encontrado");
 }
 
-if ($pre['status'] !== 'pendente') {
-    die("Este pré-cadastro já foi processado.");
+// ==============================
+// 🚫 EVITAR DUPLICIDADE
+// ==============================
+if ($pre['status'] == 'aprovado') {
+    header("Location: pre_cadastros.php");
+    exit;
 }
 
-$turmas = $pdo->query("SELECT id, nome FROM turmas WHERE status = 'ativa' ORDER BY nome")
-    ->fetchAll(PDO::FETCH_ASSOC);
+// ==============================
+// 🧱 INICIAR TRANSAÇÃO
+// ==============================
+$pdo->beginTransaction();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+$stmt = $pdo->prepare("
+    SELECT caso_id FROM participantes WHERE cpf = ?
+");
+$stmt->execute([$pre['cpf']]);
 
-    $turma_id = (int) $_POST['turma_id'];
+$existente = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    try {
+if ($existente) {
+    header("Location: caso_detalhes.php?id=" . $existente['caso_id']);
+    exit;
+}
 
-        $pdo->beginTransaction();
+try {
 
-        $check = $pdo->prepare("SELECT id FROM participantes WHERE cpf = ?");
-        $check->execute([$pre['cpf']]);
+    // ==============================
+    // 1️⃣ CRIAR CASO
+    // ==============================
+    $pdo->exec("INSERT INTO casos () VALUES ()");
+    $caso_id = $pdo->lastInsertId();
 
-        if ($check->rowCount() > 0) {
-            throw new Exception("Participante já cadastrado.");
-        }
+    // ==============================
+    // 2️⃣ CRIAR PARTICIPANTE (VÍTIMA)
+    // ==============================
+    $stmt = $pdo->prepare("
+        INSERT INTO participantes (
+            nome,
+            cpf,
+            data_nascimento,
+            telefone,
+            email,
+            endereco,
+            bairro,
+            caso_id,
+            tipo
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'vitima')
+    ");
 
-        $insert = $pdo->prepare("
-            INSERT INTO participantes
-            (nome, cpf, data_nascimento, telefone, email, endereco, bairro, turma_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ");
+    $stmt->execute([
+        $pre['nome'],
+        $pre['cpf'],
+        $pre['data_nascimento'],
+        $pre['telefone'],
+        $pre['email'],
+        $pre['endereco'],
+        $pre['bairro'],
+        $caso_id
+    ]);
 
-        $insert->execute([
-            $pre['nome'],
-            $pre['cpf'],
-            $pre['data_nascimento'],
-            $pre['telefone'],
-            $pre['email'],
-            $pre['endereco'],
-            $pre['bairro'],
-            $turma_id
-        ]);
+    $participante_id = $pdo->lastInsertId();
 
-        $update = $pdo->prepare("
-            UPDATE pre_cadastros
-            SET status = 'aprovado'
-            WHERE id = ?
-        ");
-        $update->execute([$id]);
+    // ==============================
+    // 3️⃣ ATUALIZAR STATUS
+    // ==============================
+    $stmt = $pdo->prepare("
+        UPDATE pre_cadastros 
+        SET status = 'aprovado'
+        WHERE id = ?
+    ");
+    $stmt->execute([$id]);
 
-        registrarLog(
+    // ==============================
+    // 🧾 LOG
+    // ==============================
+    registrarLog(
         $pdo,
-        'APROVACAO',
-        'pre_cadastros',
-        $id,
-        "Aprovou pré-cadastro ID $id"
-        );
+        'CREATE',
+        'casos',
+        $caso_id,
+        "Criou caso via aprovação de pré-cadastro ID $id",
+        $_SESSION['usuario']['id']
+    );
 
-        $pdo->commit();
+    registrarLog(
+        $pdo,
+        'CREATE',
+        'participantes',
+        $participante_id,
+        "Criou vítima automaticamente (caso $caso_id)",
+        $_SESSION['usuario']['id']
+    );
 
-        header("Location: pre_cadastros.php?msg=aprovado");
-        exit;
-    } catch (Exception $e) {
-        $pdo->rollBack();
-        $erro = $e->getMessage();
-    }
+    // ==============================
+    // ✅ COMMIT
+    // ==============================
+    $pdo->commit();
+
+    // ==============================
+    // 🚀 REDIRECIONAR PARA O CASO
+    // ==============================
+    header("Location: caso_detalhes.php?id=" . $caso_id);
+    exit;
+} catch (Exception $e) {
+
+    $pdo->rollBack();
+    die("Erro ao aprovar: " . $e->getMessage());
 }
-?>
-
-<div class="container mt-4">
-    <div class="card shadow">
-        <div class="card-header bg-success text-white">
-            <h5 class="mb-0">Confirmar Aprovação de Pré-Cadastro</h5>
-        </div>
-
-        <div class="card-body">
-
-            <?php if (!empty($erro)): ?>
-                <div class="alert alert-danger"><?= $erro ?></div>
-            <?php endif; ?>
-
-            <div class="mb-3">
-                <strong>Nome:</strong> <?= htmlspecialchars($pre['nome']) ?>
-            </div>
-
-            <div class="mb-3">
-                <strong>CPF:</strong> <?= htmlspecialchars($pre['cpf']) ?>
-            </div>
-
-            <form method="POST">
-
-                <div class="mb-3">
-                    <label class="form-label">Selecionar Turma</label>
-                    <select name="turma_id" class="form-select" required>
-                        <option value="">Selecione</option>
-                        <?php foreach ($turmas as $t): ?>
-                            <option value="<?= $t['id'] ?>">
-                                <?= htmlspecialchars($t['nome']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
-                <div class="d-flex justify-content-between">
-                    <a href="pre_cadastros.php" class="btn btn-secondary">
-                        Cancelar
-                    </a>
-
-                    <button type="submit" class="btn btn-success">
-                        Confirmar Aprovação
-                    </button>
-                </div>
-
-            </form>
-
-        </div>
-    </div>
-</div>
-
-<?php require_once __DIR__ . "/../../layout/admin_footer.php"; ?>

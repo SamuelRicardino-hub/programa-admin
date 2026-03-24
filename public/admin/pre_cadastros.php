@@ -55,7 +55,8 @@ $preCadastros = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <td>
                                 <?php if ($pre['status'] === 'pendente'): ?>
                                     <a href="pre_cadastro_aprovar.php?id=<?= $pre['id'] ?>"
-                                        class="btn btn-sm btn-success">
+                                        class="btn btn-sm btn-success" 
+                                        onclick="return confirm('Deseja realmente aprovar este pré-cadastro?')">
                                         Aprovar
                                     </a>
 
@@ -64,6 +65,7 @@ $preCadastros = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         onclick="return confirm('Tem certeza que deseja REJEITAR este pré-cadastro?')">
                                         Rejeitar
                                     </a>
+
                                 <?php else: ?>
                                     <span class="text-muted">Sem ações</span>
                                 <?php endif; ?>

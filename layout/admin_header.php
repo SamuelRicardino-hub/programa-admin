@@ -34,6 +34,9 @@ if (session_status() === PHP_SESSION_NONE) {
                     <a href="/programa-admin/public/admin/turmas_lista.php" class="nav-link text-white">Turmas</a>
                 </li>
                 <li class="nav-item">
+                    <a href="/programa-admin/public/admin/casos_lista.php" class="nav-link text-white">Casos</a>
+                </li>
+                <li class="nav-item">
                     <a href="/programa-admin/public/admin/usuarios_lista.php" class="nav-link text-white">Usuários</a>
                 </li>
                 <li class="nav-item">

@@ -9,23 +9,23 @@ function registrarLog($pdo, $tipo, $entidade, $entidade_id, $acao)
         VALUES (?, ?, ?, ?, ?)
     ");
 
-    function corTipo($tipo)
-    {
-        switch ($tipo) {
-            case 'DELETE':
-                return 'danger';
-            case 'CREATE':
-                return 'success';
-            case 'UPDATE':
-                return 'warning';
-            case 'APROVACAO':
-                return 'primary';
-            case 'REJEICAO':
-                return 'secondary';
-            case 'LOGIN':
-                return 'info';
-            default:
-                return 'dark';
+    if (!function_exists('corTipo')) { {
+            switch ($tipo) {
+                case 'DELETE':
+                    return 'danger';
+                case 'CREATE':
+                    return 'success';
+                case 'UPDATE':
+                    return 'warning';
+                case 'APROVACAO':
+                    return 'primary';
+                case 'REJEICAO':
+                    return 'secondary';
+                case 'LOGIN':
+                    return 'info';
+                default:
+                    return 'dark';
+            }
         }
     }
 
