@@ -83,10 +83,12 @@ $turmas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             📄 PDF
                         </a>
 
-                        <a href="exportar_participantes_excel.php?turma_id=<?= $turma_id ?>"
+                        <a href="exportar_participantes_excel.php?turma_id=<?= $t['id'] ?>"
                             class="btn btn-sm btn-success">
                             📥 Excel
                         </a>
+
+
 
                     </td>
 

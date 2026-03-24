@@ -26,6 +26,21 @@ if (!$participante) {
     die("Participante não encontrado");
 }
 
+$stmt = $pdo->prepare("
+    SELECT 
+        l.acao,
+        l.tipo,
+        l.data,
+        u.nome as usuario_nome
+    FROM logs l
+    LEFT JOIN usuarios u ON u.id = l.usuario_id
+    WHERE l.entidade = 'participantes'
+    AND l.entidade_id = ?
+    ORDER BY l.data DESC
+");
+$stmt->execute([$id]);
+$logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 require_once __DIR__ . '/../../layout/admin_header.php';
 ?>
 
@@ -85,6 +100,57 @@ require_once __DIR__ . '/../../layout/admin_header.php';
             </div>
         </div>
     <?php endif; ?>
+
+    <!-- 📜 HISTÓRICO -->
+    <div class="card mb-3 shadow-sm">
+        <div class="card-body">
+
+            <h5 class="mb-3">Histórico</h5>
+
+            <?php if (empty($logs)): ?>
+                <p class="text-muted">Nenhuma ação registrada.</p>
+            <?php else: ?>
+
+                <table class="table table-sm table-bordered">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Data</th>
+                            <th>Usuário</th>
+                            <th>Tipo</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <?php foreach ($logs as $log): ?>
+                            <tr>
+                                <td><?= date('d/m/Y H:i', strtotime($log['data'])) ?></td>
+
+                                <td>
+                                    <?= htmlspecialchars($log['usuario_nome'] ?? 'Sistema') ?>
+                                </td>
+
+                                <td>
+                                    <span class="badge 
+                                    <?= $log['tipo'] == 'CREATE' ? 'bg-success' : '' ?>
+                                    <?= $log['tipo'] == 'UPDATE' ? 'bg-warning text-dark' : '' ?>
+                                    <?= $log['tipo'] == 'DELETE' ? 'bg-danger' : '' ?>">
+
+                                        <?= htmlspecialchars($log['tipo']) ?>
+                                    </span>
+                                </td>
+
+                                <td><?= htmlspecialchars($log['acao']) ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+
+                    </tbody>
+                </table>
+
+            <?php endif; ?>
+
+        </div>
+    </div>
 
     <a href="relatorio_participantes.php?id=<?= $participante['id'] ?>"
         class="btn btn-danger"
