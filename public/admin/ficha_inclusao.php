@@ -5,19 +5,30 @@ require_once __DIR__ . '/../../config/auth.php';
 auth();
 canAny(['admin', 'atendente']);
 
-$pre_id = $_GET['id'] ?? null;
+// ==============================
+// 🔒 VALIDAR ID
+// ==============================
+$participante_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
-if (!$pre_id) {
-    die("Pré-cadastro não informado");
+if (!$participante_id) {
+    header("Location: casos_lista.php");
+    exit;
 }
 
-// Buscar dados básicos
-$stmt = $pdo->prepare("SELECT nome, cpf FROM pre_cadastros WHERE id = ?");
-$stmt->execute([$pre_id]);
-$pre = $stmt->fetch(PDO::FETCH_ASSOC);
+// ==============================
+// 🔍 BUSCAR VÍTIMA
+// ==============================
+$stmt = $pdo->prepare("
+    SELECT nome, cpf 
+    FROM participantes 
+    WHERE id = ? AND tipo = 'vitima'
+");
+$stmt->execute([$participante_id]);
 
-if (!$pre) {
-    die("Pré-cadastro não encontrado");
+$participante = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$participante) {
+    die("Participante não encontrado");
 }
 
 require_once __DIR__ . '/../../layout/admin_header.php';
@@ -26,15 +37,19 @@ require_once __DIR__ . '/../../layout/admin_header.php';
 <div class="container mt-4">
 
     <h3>Ficha de Inclusão</h3>
-    <p><strong><?= $pre['nome'] ?></strong> (CPF: <?= $pre['cpf'] ?>)</p>
+
+    <p>
+        <strong><?= htmlspecialchars($participante['nome']) ?></strong> 
+        (CPF: <?= htmlspecialchars($participante['cpf']) ?>)
+    </p>
 
     <form method="POST" action="ficha_inclusao_salvar.php">
 
-        <input type="hidden" name="pre_cadastro_id" value="<?= $pre_id ?>">
+        <input type="hidden" name="participante_id" value="<?= $participante_id ?>">
 
         <div class="row">
 
-            <h5>Dados Sociais</h5>
+            <h5 class="mt-3">Dados Sociais</h5>
 
             <div class="col-md-4 mb-3">
                 <label>Cor</label>
@@ -68,7 +83,7 @@ require_once __DIR__ . '/../../layout/admin_header.php';
 
             <hr>
 
-            <h5>Família e Moradia</h5>
+            <h5 class="mt-3">Família e Moradia</h5>
 
             <div class="col-md-4 mb-3">
                 <label>Renda Familiar</label>
@@ -92,21 +107,21 @@ require_once __DIR__ . '/../../layout/admin_header.php';
 
             <hr>
 
-            <h5>Saúde</h5>
+            <h5 class="mt-3">Saúde</h5>
 
-            <div class="col-6 mb-3">
+            <div class="col-md-6 mb-3">
                 <label>Problemas de saúde</label>
                 <textarea name="problemas_saude" class="form-control"></textarea>
             </div>
 
-            <div class="col-6 mb-3">
+            <div class="col-md-6 mb-3">
                 <label>Uso de medicação</label>
                 <textarea name="uso_medicacao" class="form-control"></textarea>
             </div>
 
             <hr>
 
-            <h5>Uso de Substâncias</h5>
+            <h5 class="mt-3">Uso de Substâncias</h5>
 
             <div class="col-md-4 mb-3">
                 <label>Uso de álcool</label>
@@ -125,31 +140,31 @@ require_once __DIR__ . '/../../layout/admin_header.php';
 
             <hr>
 
-            <h5>Contexto Social</h5>
+            <h5 class="mt-3">Contexto Social</h5>
 
-            <div class="col-6 mb-3">
+            <div class="col-md-6 mb-3">
                 <label>Violência praticada</label>
                 <textarea name="violencia_praticada" class="form-control"></textarea>
             </div>
 
-            <div class="col-6 mb-3">
+            <div class="col-md-6 mb-3">
                 <label>Violência sofrida</label>
                 <textarea name="violencia_sofrida" class="form-control"></textarea>
             </div>
 
-            <div class="col-6 mb-3">
+            <div class="col-md-6 mb-3">
                 <label>Histórico familiar</label>
                 <textarea name="historico_familiar" class="form-control"></textarea>
             </div>
 
-            <div class="col-6 mb-3">
+            <div class="col-md-6 mb-3">
                 <label>Situação jurídica</label>
                 <textarea name="situacao_juridica" class="form-control"></textarea>
             </div>
 
             <hr>
 
-            <h5>Grupo Reflexivo</h5>
+            <h5 class="mt-3">Grupo Reflexivo</h5>
 
             <div class="col-12 mb-3">
                 <label>Expectativa com o grupo</label>

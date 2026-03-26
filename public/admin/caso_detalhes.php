@@ -50,15 +50,14 @@ $autor = $sql->fetch(PDO::FETCH_ASSOC);
     <?php endif; ?>
 
     <?php if ($vitima): ?>
-        <a href="ficha_inclusao.php?id=<?= $vitima['id'] ?>"
+        <a href="ficha_final.php?id=<?= $vitima['id'] ?>"
             class="btn btn-warning btn-sm mt-2">
-            Ficha Inclusão
+            Ficha Final
         </a>
     <?php endif; ?>
 
     <a href="relatorio_caso.php?caso_id=<?= $id ?>"
-        target="_blank"
-        class="btn btn-danger mb-3">
+        class="btn btn-sm btn-danger mb-3">
         Gerar PDF Completo
     </a>
 
@@ -79,6 +78,11 @@ $autor = $sql->fetch(PDO::FETCH_ASSOC);
                         <a href="participantes_detalhes.php?id=<?= $vitima['id'] ?>"
                             class="btn btn-secondary btn-sm">
                             Ver detalhes
+                        </a>
+
+                        <a href="caso_andamento.php?caso_id=<?= $id ?>"
+                            class="btn btn-primary mb-3">
+                            Ver Andamento
                         </a>
 
                     <?php else: ?>
