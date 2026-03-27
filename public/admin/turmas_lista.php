@@ -78,10 +78,7 @@ $turmas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             👥 Ver Participantes
                         </a>
 
-                        <a href="relatorio_turma.php?turma_id=<?= $t['id'] ?>"
-                            class="btn btn-sm btn-primary" target="_blank">
-                            📄 PDF
-                        </a>
+                        <a href="presenca.php?turma_id=<?= $t['id'] ?>" class="btn btn-sm btn-primary" >📋 Presença</a>
 
                         <a href="exportar_participantes_excel.php?turma_id=<?= $t['id'] ?>"
                             class="btn btn-sm btn-success">
