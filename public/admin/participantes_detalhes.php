@@ -152,6 +152,58 @@ require_once __DIR__ . '/../../layout/admin_header.php';
         </div>
     </div>
 
+    <?php
+    // 🔍 Verificar ficha inclusão
+    $stmt = $pdo->prepare("SELECT id FROM ficha_inclusao WHERE participante_id = ?");
+    $stmt->execute([$participante['id']]);
+    $temFichaInclusao = $stmt->fetch();
+
+    // 🔍 Verificar ficha final
+    $stmt = $pdo->prepare("SELECT id FROM ficha_avaliacao_final WHERE participante_id = ?");
+    $stmt->execute([$participante['id']]);
+    $temFichaFinal = $stmt->fetch();
+    ?>
+
+    <div class="mt-3">
+
+        <!-- VÍTIMA -->
+        <?php if ($participante['tipo'] == 'vitima'): ?>
+
+            <?php if (!$temFichaInclusao): ?>
+                <a href="ficha_inclusao.php?participante_id=<?= $participante['id'] ?>"
+                    class="btn btn-primary">
+                    🧾 Preencher Ficha de Inclusão
+                </a>
+            <?php else: ?>
+                <span class="badge bg-success">Ficha de Inclusão já preenchida</span>
+            <?php endif; ?>
+
+        <?php endif; ?>
+
+
+        <!-- AUTOR -->
+        <?php if ($participante['tipo'] == 'autor'): ?>
+
+            <?php if (!$temFichaFinal): ?>
+                <a href="ficha_final.php?participante_id=<?= $participante['id'] ?>"
+                    class="btn btn-warning">
+                    📊 Preencher Ficha Final
+                </a>
+            <?php else: ?>
+                <span class="badge bg-success">Ficha Final já preenchida</span>
+
+                <a href="vincular_caso.php?participante_id=<?= $participante['id'] ?>"
+                    class="btn btn-danger">
+                    🔗 Vincular a Vítima / Criar Caso
+                </a>
+            <?php endif; ?>
+
+        <?php endif; ?>
+
+    </div>
+
+    <hr>
+
     <a href="relatorio_participantes.php?id=<?= $participante['id'] ?>"
         class="btn btn-danger"
         target="_blank">

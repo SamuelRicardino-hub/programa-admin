@@ -8,13 +8,20 @@ canAny(['admin', 'atendente']);
 // ==============================
 // 🔒 VALIDAR ID
 // ==============================
-$participante_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$participante_id = $_GET['participante_id'] ?? null;
 
 if (!$participante_id) {
-    header("Location: casos_lista.php");
-    exit;
+    die("ID do participante não informado");
 }
 
+// Verificar se existe no banco
+$stmt = $pdo->prepare("SELECT * FROM participantes WHERE id = ?");
+$stmt->execute([$participante_id]);
+$participante = $stmt->fetch();
+
+if (!$participante) {
+    die("Participante não encontrado");
+}
 // ==============================
 // 🔍 BUSCAR VÍTIMA
 // ==============================

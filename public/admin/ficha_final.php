@@ -7,8 +7,18 @@ canAny(['admin', 'atendente']);
 
 $id = $_GET['id'] ?? null;
 
-if (!$id) {
-    die("Participante não informado");
+$participante_id = $_GET['participante_id'] ?? null;
+
+if (!$participante_id) {
+    die("ID do participante não informado");
+}
+
+$stmt = $pdo->prepare("SELECT * FROM participantes WHERE id = ?");
+$stmt->execute([$participante_id]);
+$participante = $stmt->fetch();
+
+if (!$participante) {
+    die("Participante não encontrado");
 }
 
 require_once __DIR__ . '/../../layout/admin_header.php';
@@ -20,7 +30,7 @@ require_once __DIR__ . '/../../layout/admin_header.php';
 
     <form method="POST" action="ficha_final_salvar.php">
 
-        <input type="hidden" name="participante_id" value="<?= $id ?>">
+        <input type="hidden" name="participante_id" value="<?= $participante_id ?>">
 
         <hr>
 

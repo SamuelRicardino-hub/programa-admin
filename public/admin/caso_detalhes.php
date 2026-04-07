@@ -6,138 +6,143 @@ require_once __DIR__ . '/../../layout/admin_header.php';
 auth();
 canAny(['admin', 'atendente']);
 
-$id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+$caso_id = $_GET['id'] ?? null;
 
-if (!$id) {
-    header("Location: casos_lista.php");
-    exit;
-}
-
-if (!$id) {
+if (!$caso_id) {
     die("Caso não informado");
 }
 
-$stmt = $pdo->prepare("SELECT status FROM casos WHERE id = ?");
-$stmt->execute([$id]);
-$caso = $stmt->fetch(PDO::FETCH_ASSOC);
+// ==============================
+// 🔍 BUSCAR CASO
+// ==============================
+$stmt = $pdo->prepare("SELECT * FROM casos WHERE id = ?");
+$stmt->execute([$caso_id]);
+$caso = $stmt->fetch();
 
-// 👩 vítima
-$sql = $pdo->prepare("
-SELECT * FROM participantes 
-WHERE caso_id = ? AND tipo = 'vitima'
-");
-$sql->execute([$id]);
-$vitima = $sql->fetch(PDO::FETCH_ASSOC);
+if (!$caso) {
+    die("Caso não encontrado");
+}
 
-// 👨 autor
-$sql = $pdo->prepare("
-SELECT * FROM participantes 
-WHERE caso_id = ? AND tipo = 'autor'
+// ==============================
+// 👥 BUSCAR PARTICIPANTES DO CASO
+// ==============================
+$stmt = $pdo->prepare("
+    SELECT * FROM participantes 
+    WHERE caso_id = ?
 ");
-$sql->execute([$id]);
-$autor = $sql->fetch(PDO::FETCH_ASSOC);
+$stmt->execute([$caso_id]);
+$participantes = $stmt->fetchAll();
+
+$vitima = null;
+$autor = null;
+
+foreach ($participantes as $p) {
+    if ($p['tipo'] == 'vitima') {
+        $vitima = $p;
+    } elseif ($p['tipo'] == 'autor') {
+        $autor = $p;
+    }
+}
+
+// ==============================
+// 📄 FICHA INCLUSÃO (VÍTIMA)
+// ==============================
+$fichaInclusao = null;
+
+if ($vitima) {
+    $stmt = $pdo->prepare("SELECT * FROM ficha_inclusao WHERE participante_id = ?");
+    $stmt->execute([$vitima['id']]);
+    $fichaInclusao = $stmt->fetch();
+}
+
+// ==============================
+// 📄 FICHA FINAL (AUTOR)
+// ==============================
+$fichaFinal = null;
+
+if ($autor) {
+    $stmt = $pdo->prepare("SELECT * FROM ficha_avaliacao_final WHERE participante_id = ?");
+    $stmt->execute([$autor['id']]);
+    $fichaFinal = $stmt->fetch();
+}
+
+require_once __DIR__ . '/../../layout/admin_header.php';
 ?>
 
 <div class="container mt-4">
 
-    <h3>Detalhes do Caso #<?= $id ?></h3>
+    <h2>Detalhes do Caso #<?= $caso_id ?></h2>
 
-    <?php if ($vitima): ?>
-        <a href="ficha_inclusao.php?id=<?= $vitima['id'] ?>"
-            class="btn btn-warning btn-sm mt-2">
-            Ficha Inclusão
-        </a>
-    <?php endif; ?>
+    <!-- STATUS -->
+    <div class="mb-3">
+        <span class="badge bg-primary">
+            Status: <?= $caso['status'] ?? 'ativo' ?>
+        </span>
+    </div>
 
-    <?php if ($vitima): ?>
-        <a href="ficha_final.php?id=<?= $vitima['id'] ?>"
-            class="btn btn-warning btn-sm mt-2">
-            Ficha Final
-        </a>
-    <?php endif; ?>
-
-    <a href="relatorio_caso.php?caso_id=<?= $id ?>"
-        class="btn btn-sm btn-danger mb-3">
-        Gerar PDF Completo
-    </a>
-
-    <div class="row">
-
-        <!-- VÍTIMA -->
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-body">
-
-                    <h5>Vítima</h5>
-
-                    <?php if ($vitima): ?>
-
-                        <p><strong>Nome:</strong> <?= htmlspecialchars($vitima['nome']) ?>
-                        <p><strong>CPF:</strong> <?= htmlspecialchars($vitima['cpf']) ?></p>
-
-                        <a href="participantes_detalhes.php?id=<?= $vitima['id'] ?>"
-                            class="btn btn-secondary btn-sm">
-                            Ver detalhes
-                        </a>
-
-                        <a href="caso_andamento.php?caso_id=<?= $id ?>"
-                            class="btn btn-primary mb-3">
-                            Ver Andamento
-                        </a>
-
-                    <?php else: ?>
-                        <p>Não cadastrada</p>
-                    <?php endif; ?>
-
-                </div>
-            </div>
+    <!-- 👤 VÍTIMA -->
+    <div class="card mb-3">
+        <div class="card-header bg-danger text-white">
+            Vítima
         </div>
+        <div class="card-body">
 
-        <!-- AUTOR -->
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-body">
+            <?php if ($vitima): ?>
+                <p><strong>Nome:</strong> <?= $vitima['nome'] ?></p>
+                <p><strong>CPF:</strong> <?= $vitima['cpf'] ?></p>
+                <p><strong>Telefone:</strong> <?= $vitima['telefone'] ?></p>
 
-                    <h5>Autor</h5>
+                <?php if ($fichaInclusao): ?>
+                    <span class="badge bg-success">Ficha de inclusão preenchida</span>
+                <?php else: ?>
+                    <span class="badge bg-warning text-dark">Sem ficha de inclusão</span>
+                <?php endif; ?>
 
-                    <?php if ($autor): ?>
+            <?php else: ?>
+                <p class="text-muted">Nenhuma vítima vinculada</p>
+            <?php endif; ?>
 
-                        <p><strong>Nome:</strong> <?= htmlspecialchars($autor['nome']) ?></p>
-                        <p><strong>CPF:</strong> <?= htmlspecialchars($autor['cpf']) ?></p>
-                        <p>
-                            <strong>Status:</strong>
-                            <span class="badge <?= $caso['status'] == 'ativo' ? 'bg-success' : 'bg-secondary' ?>">
-                                <?= ucfirst($caso['status']) ?>
-                            </span>
-                        </p>
-
-                        <a href="participantes_detalhes.php?id=<?= $autor['id'] ?>"
-                            class="btn btn-secondary btn-sm">
-                            Ver detalhes
-                        </a>
-
-                    <?php else: ?>
-
-                        <p>Não cadastrado</p>
-
-                        <a href="participante_novo.php?caso_id=<?= $id ?>&tipo=autor"
-                            class="btn btn-primary btn-sm">
-                            Cadastrar Autor
-                        </a>
-
-                    <?php endif; ?>
-
-                </div>
-            </div>
         </div>
+    </div>
 
-        <?php if ($caso['status'] == 'ativo'): ?>
-            <a href="caso_encerrar.php?id=<?= $id ?>"
-                class="btn btn-success mt-3"
-                onclick="return confirm('Deseja encerrar este caso?')">
-                Encerrar Caso
-            </a>
-        <?php endif; ?>
+    <!-- 👤 AUTOR -->
+    <div class="card mb-3">
+        <div class="card-header bg-dark text-white">
+            Autor
+        </div>
+        <div class="card-body">
+
+            <?php if ($autor): ?>
+                <p><strong>Nome:</strong> <?= $autor['nome'] ?></p>
+                <p><strong>CPF:</strong> <?= $autor['cpf'] ?></p>
+                <p><strong>Telefone:</strong> <?= $autor['telefone'] ?></p>
+
+                <?php if ($fichaFinal): ?>
+                    <span class="badge bg-success">Ficha final preenchida</span>
+                <?php else: ?>
+                    <span class="badge bg-warning text-dark">Sem ficha final</span>
+                <?php endif; ?>
+
+            <?php else: ?>
+                <p class="text-muted">Nenhum autor vinculado</p>
+            <?php endif; ?>
+
+        </div>
+    </div>
+
+    <!-- 📄 AÇÕES -->
+    <div class="mt-3">
+
+        <a href="relatorio_caso.php?id=<?= $caso_id ?>" 
+           target="_blank"
+           class="btn btn-danger">
+            📄 Gerar PDF do Caso
+        </a>
+
+        <a href="casos_lista.php" class="btn btn-secondary">
+            Voltar
+        </a>
+
     </div>
 
 </div>

@@ -2,11 +2,12 @@
 require_once __DIR__ . '/../../config/conexao.php';
 require_once __DIR__ . '/../../config/auth.php';
 require_once __DIR__ . '/../../config/logs.php';
+require_once __DIR__ . '/../../layout/admin_header.php';
 
 auth();
 canAny(['admin', 'atendente']);
 
-require_once '../includes/header.php';
+
 
 $id = $_GET['id'] ?? null;
 
@@ -30,6 +31,7 @@ if (!$pre) {
 // ==============================
 if ($pre['status'] == 'aprovado') {
     echo "<div class='alert alert-warning'>Este cadastro já foi aprovado.</div>";
+    exit;
 }
 
 // ==============================
@@ -44,6 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $tipo = $_POST['tipo'] ?? null;
     $turma_id = $_POST['turma_id'] ?? null;
+    $usuario_id = $_SESSION['usuario']['id'] ?? null;
 
     if (!$tipo || !$turma_id) {
         echo "<div class='alert alert-danger'>Preencha todos os campos.</div>";
@@ -102,24 +105,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ");
             $stmt->execute([$id]);
 
-            // ==============================
-            // 🧾 LOG
-            // ==============================
-            registrarLog(
-                $pdo,
-                'CREATE',
-                'participantes',
-                $participante_id,
-                "Aprovou pré-cadastro ID $id (tipo: $tipo)",
-                $_SESSION['usuario']['id']
-            );
-
+            if ($usuario_id) {
+                registrarLog(
+                    $pdo,
+                    'CREATE',
+                    'participantes',
+                    $participante_id,
+                    "Aprovou pré-cadastro ID $id (tipo: $tipo)",
+                    $usuario_id
+                );
+            }
             $pdo->commit();
 
             echo "<div class='alert alert-success'>Cadastro aprovado com sucesso!</div>";
 
             echo "<a href='turmas_lista.php' class='btn btn-primary'>Ir para Turmas</a>";
-
         } catch (Exception $e) {
 
             $pdo->rollBack();
@@ -171,4 +171,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 </div>
 
-<?php require_once '/../../layout/footer.php'; ?>
+<?php require_once __DIR__ . '/../../layout/admin_footer.php' ?>
