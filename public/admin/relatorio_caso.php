@@ -11,15 +11,18 @@ function txt($t) {
 }
 
 // ==============================
-// 📄 CLASSE PDF CUSTOM
+// 📄 PDF
 // ==============================
 class PDF extends FPDF {
 
     function Header() {
-        // LOGO
-        $this->Image(__DIR__ . '/../../assets/logo.png', 10, 8, 25);
 
-        // TÍTULO
+        $logo = __DIR__ . '/../../assets/logo.png';
+
+        if (file_exists($logo)) {
+            $this->Image($logo, 10, 8, 25);
+        }
+
         $this->SetFont('Arial', 'B', 14);
         $this->Cell(0, 10, txt('PREFEITURA MUNICIPAL'), 0, 1, 'C');
 
@@ -63,14 +66,21 @@ foreach ($participantes as $p) {
     if ($p['tipo'] == 'autor') $autor = $p;
 }
 
-// Fichas
-$stmt = $pdo->prepare("SELECT * FROM ficha_inclusao WHERE participante_id = ?");
-$stmt->execute([$vitima['id'] ?? 0]);
-$fichaInclusao = $stmt->fetch();
+// Fichas (com validação)
+$fichaInclusao = null;
+$fichaFinal = null;
 
-$stmt = $pdo->prepare("SELECT * FROM ficha_avaliacao_final WHERE participante_id = ?");
-$stmt->execute([$autor['id'] ?? 0]);
-$fichaFinal = $stmt->fetch();
+if ($vitima) {
+    $stmt = $pdo->prepare("SELECT * FROM ficha_inclusao WHERE participante_id = ?");
+    $stmt->execute([$vitima['id']]);
+    $fichaInclusao = $stmt->fetch();
+}
+
+if ($autor) {
+    $stmt = $pdo->prepare("SELECT * FROM ficha_avaliacao_final WHERE participante_id = ?");
+    $stmt->execute([$autor['id']]);
+    $fichaFinal = $stmt->fetch();
+}
 
 // ==============================
 // 🖨️ PDF
@@ -111,11 +121,13 @@ if ($vitima) {
 
         $pdf->SetFont('Arial', '', 10);
 
-        $pdf->MultiCell(0, 5, txt("Situação familiar: " . ($fichaInclusao['situacao_familiar'] ?? '')));
-        $pdf->MultiCell(0, 5, txt("Saúde: " . ($fichaInclusao['saude'] ?? '')));
-        $pdf->MultiCell(0, 5, txt("Uso de substâncias: " . ($fichaInclusao['uso_substancias'] ?? '')));
-        $pdf->MultiCell(0, 5, txt("Histórico de violência: " . ($fichaInclusao['historico_violencia'] ?? '')));
-        $pdf->Ln(3);
+        $pdf->MultiCell(0, 5, txt("Situação civil: " . $fichaInclusao['situacao_civil']));
+        $pdf->MultiCell(0, 5, txt("Escolaridade: " . $fichaInclusao['escolaridade']));
+        $pdf->MultiCell(0, 5, txt("Profissão: " . $fichaInclusao['profissao']));
+        $pdf->MultiCell(0, 5, txt("Problemas de saúde: " . $fichaInclusao['problemas_saude']));
+        $pdf->MultiCell(0, 5, txt("Uso de álcool: " . $fichaInclusao['uso_alcool']));
+        $pdf->MultiCell(0, 5, txt("Drogas utilizadas: " . $fichaInclusao['drogas_utilizadas']));
+        $pdf->MultiCell(0, 5, txt("Violência sofrida: " . $fichaInclusao['violencia_sofrida']));
     }
 }
 
@@ -123,6 +135,8 @@ if ($vitima) {
 // 👤 AUTOR
 // ==============================
 if ($autor) {
+
+    $pdf->Ln(5);
 
     $pdf->SetFillColor(33, 37, 41);
     $pdf->SetTextColor(255);
@@ -144,12 +158,12 @@ if ($autor) {
 
         $pdf->SetFont('Arial', '', 10);
 
-        $pdf->MultiCell(0, 5, txt("Sentimento sobre denúncia: " . ($fichaFinal['sentimento_denuncia'] ?? '')));
-        $pdf->MultiCell(0, 5, txt("Considera justa: " . ($fichaFinal['acha_justa'] ?? '')));
-        $pdf->MultiCell(0, 5, txt("Mudança de comportamento: " . ($fichaFinal['houve_mudanca'] ?? '')));
-        $pdf->MultiCell(0, 5, txt("Descrição da mudança: " . ($fichaFinal['descricao_mudanca'] ?? '')));
-        $pdf->MultiCell(0, 5, txt("Impacto nos relacionamentos: " . ($fichaFinal['impacto_relacionamentos'] ?? '')));
-        $pdf->MultiCell(0, 5, txt("Recomendaria o programa: " . ($fichaFinal['recomendaria'] ?? '')));
+        $pdf->MultiCell(0, 5, txt("Sentimento: " . $fichaFinal['sentimento_denuncia']));
+        $pdf->MultiCell(0, 5, txt("Considera justa: " . $fichaFinal['acha_justa']));
+        $pdf->MultiCell(0, 5, txt("Houve mudança: " . $fichaFinal['houve_mudanca']));
+        $pdf->MultiCell(0, 5, txt("Descrição: " . $fichaFinal['descricao_mudanca']));
+        $pdf->MultiCell(0, 5, txt("Impacto: " . $fichaFinal['impacto_relacionamentos']));
+        $pdf->MultiCell(0, 5, txt("Recomendaria: " . $fichaFinal['recomendaria']));
     }
 }
 

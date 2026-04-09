@@ -66,25 +66,65 @@ $turmas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                     <td>
 
-                        <a href="turmas_editar.php?id=<?= $t['id'] ?>" class="btn btn-sm btn-warning">
-                            ✏️ Editar
-                        </a>
+                        <div class="dropdown">
 
-                        <a href="turmas_excluir.php?id=<?= $t['id'] ?>" class="btn btn-sm btn-danger">
-                            ❌ Excluir
-                        </a>
+                            <button class="btn btn-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                                ⚙️ Ações
+                            </button>
 
-                        <a href="participantes_lista.php?turma_id=<?= $t['id'] ?>" class="btn btn-sm btn-dark">
-                            👥 Ver Participantes
-                        </a>
+                            <ul class="dropdown-menu">
 
-                        <a href="presenca.php?turma_id=<?= $t['id'] ?>" class="btn btn-sm btn-primary" >📋 Presença</a>
+                                <li>
+                                    <a class="dropdown-item" href="participantes_lista.php?turma_id=<?= $t['id'] ?>">
+                                        👥 Ver Participantes
+                                    </a>
+                                </li>
 
-                        <a href="exportar_participantes_excel.php?turma_id=<?= $t['id'] ?>"
-                            class="btn btn-sm btn-success">
-                            📥 Excel
-                        </a>
+                                <li>
+                                    <a class="dropdown-item" href="sessoes_lista.php?turma_id=<?= $t['id'] ?>">
+                                        📅 Ver Sessões
+                                    </a>
+                                </li>
 
+                                <li>
+                                    <a class="dropdown-item" href="sessao_registrar.php?turma_id=<?= $t['id'] ?>">
+                                        ➕ Registrar Encontro
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item" href="exportar_participantes_excel.php?turma_id=<?= $t['id'] ?>">
+                                        📥 Exportar Excel
+                                    </a>
+                                </li>
+
+                                <li><a href="relatorio_frequencia.php?turma_id=<?= $t['id'] ?>"
+                                        class="dropdown-item" target="_blank">
+                                        📄 Relatório de Frequência (PDF)
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item" href="turmas_editar.php?id=<?= $t['id'] ?>">
+                                        ✏️ Editar
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item text-danger"
+                                        href="turmas_excluir.php?id=<?= $t['id'] ?>"
+                                        onclick="return confirm('Tem certeza que deseja excluir esta turma?')">
+                                        ❌ Excluir
+                                    </a>
+                                </li>
+
+                            </ul>
+
+                        </div>
 
 
                     </td>

@@ -106,14 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$id]);
 
             if ($usuario_id) {
-                registrarLog(
-                    $pdo,
-                    'CREATE',
-                    'participantes',
-                    $participante_id,
-                    "Aprovou pré-cadastro ID $id (tipo: $tipo)",
-                    $usuario_id
-                );
+                registrarLog($pdo, 'APROVACAO', 'pre_cadastro', $id, 'Pré-cadastro aprovado');
             }
             $pdo->commit();
 

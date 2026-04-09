@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . "/../../config/protect.php";
+require_once __DIR__ . "/../../config/auth.php";
 require_once __DIR__ . "/../../config/conexao.php";
 
 $id = $_GET['id'] ?? null;
@@ -31,7 +31,7 @@ if ($acao === "aprovar") {
         $pre['data_nascimento'],
         $pre['email'],
         $pre['telefone'],
-        $turma_id
+        $pre['turma_id']
     ]);
 
     $stmt = $pdo->prepare("UPDATE pre_cadastros SET status = 'aprovado' WHERE id = ?");
