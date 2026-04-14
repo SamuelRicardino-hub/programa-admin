@@ -123,6 +123,11 @@ if ($turma_id) {
                                     Excluir
                                 </a>
 
+                                <a href="participante_fichas.php?id=<?= $p['id'] ?>"
+                                    class="btn btn-sm btn-info">
+                                    Ficha
+                                </a>
+
                                 <a href="participantes_detalhes.php?id=<?= $p['id'] ?>" class="btn btn-sm btn-info">
                                     Ver
                                 </a>

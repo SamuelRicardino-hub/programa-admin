@@ -25,7 +25,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
             <ul class="nav flex-column">
                 <li class="nav-item">
-                    <a href="/programa-admin/public/admin/dashboard.php" class="nav-link text-white">Dashboard</a>
+                    <a href="/programa-admin/public/admin/dashboard.php" class="nav-link text-white">Página Inicial</a>
                 </li>
                 <li class="nav-item">
                     <a href="/programa-admin/public/admin/pre_cadastros.php" class="nav-link text-white">Pré-Cadastros</a>

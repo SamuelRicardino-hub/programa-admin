@@ -20,3 +20,7 @@ function isAdmin()
 {
     return isset($_SESSION['usuario']) && $_SESSION['usuario']['nivel'] === 'admin';
 }
+function mostrarCampo($array, $campo)
+{
+    return !empty($array[$campo]) ? htmlspecialchars($array[$campo]) : 'Não informado';
+}

@@ -16,19 +16,22 @@ function limparNumero($valor)
 
 function validarCPF($cpf)
 {
-    $cpf = limparNumero($cpf);
+    $cpf = preg_replace('/\D/', '', $cpf);
 
     if (strlen($cpf) != 11) return false;
 
-    // Evita CPFs tipo 11111111111
     if (preg_match('/(\d)\1{10}/', $cpf)) return false;
 
     for ($t = 9; $t < 11; $t++) {
-        for ($d = 0, $c = 0; $c < $t; $c++) {
+        $d = 0;
+
+        for ($c = 0; $c < $t; $c++) {
             $d += $cpf[$c] * (($t + 1) - $c);
         }
+
         $d = ((10 * $d) % 11) % 10;
-        if ($cpf[$c] != $d) return false;
+
+        if ($cpf[$t] != $d) return false; 
     }
 
     return true;

@@ -76,7 +76,7 @@ $turmas = $pdo->query("
 ");
 ?>
 
-<h2 class="mb-4">Dashboard</h2>
+<h2 class="mb-4">Área Administrativa</h2>
 
 <p>
     Bem-vindo, <strong><?= htmlspecialchars($_SESSION['usuario']['nome']) ?></strong>
