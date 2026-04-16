@@ -1,23 +1,14 @@
 <?php
 require_once __DIR__ . '/../../config/conexao.php';
 require_once __DIR__ . '/../../config/auth.php';
-require_once __DIR__ . '/../../config/logs.php';
 
-auth();
-canAny(['admin', 'atendente']);
+$dados = $_POST;
 
-function post($campo)
-{
-    return $_POST[$campo] ?? null;
-}
+$temas = isset($dados['temas_importantes']) 
+    ? implode(', ', $dados['temas_importantes']) 
+    : null;
 
-$participante_id = post('participante_id');
-
-if (!$participante_id) {
-    die("Participante inválido");
-}
-
-$sql = $pdo->prepare("
+$stmt = $pdo->prepare("
 INSERT INTO ficha_avaliacao_final (
     participante_id,
     sentimento_denuncia,
@@ -26,68 +17,34 @@ INSERT INTO ficha_avaliacao_final (
     dificuldade_participar,
     motivo_dificuldade,
     avaliacao_participacao,
-    pontos_positivos,
-    pontos_negativos,
     temas_importantes,
     houve_mudanca,
     descricao_mudanca,
-    impacto_relacionamentos,
-    motivo_impacto,
-    mudou_pensamento,
-    explicacao_pensamento,
+    gostou_grupo,
+    como_saiu,
     recomendaria,
-    motivo_recomendacao
-) VALUES (
-    :participante_id,
-    :sentimento_denuncia,
-    :acha_justa,
-    :motivo_denuncia,
-    :dificuldade_participar,
-    :motivo_dificuldade,
-    :avaliacao_participacao,
-    :pontos_positivos,
-    :pontos_negativos,
-    :temas_importantes,
-    :houve_mudanca,
-    :descricao_mudanca,
-    :impacto_relacionamentos,
-    :motivo_impacto,
-    :mudou_pensamento,
-    :explicacao_pensamento,
-    :recomendaria,
-    :motivo_recomendacao
-)");
+    motivo_recomendacao,
+    sugestoes
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+");
 
-$sql->execute([
-    ':participante_id' => $participante_id,
-    ':sentimento_denuncia' => post('sentimento_denuncia'),
-    ':acha_justa' => post('acha_justa'),
-    ':motivo_denuncia' => post('motivo_denuncia'),
-    ':dificuldade_participar' => post('dificuldade_participar'),
-    ':motivo_dificuldade' => post('motivo_dificuldade'),
-    ':avaliacao_participacao' => post('avaliacao_participacao'),
-    ':pontos_positivos' => post('pontos_positivos'),
-    ':pontos_negativos' => post('pontos_negativos'),
-    ':temas_importantes' => post('temas_importantes'),
-    ':houve_mudanca' => post('houve_mudanca'),
-    ':descricao_mudanca' => post('descricao_mudanca'),
-    ':impacto_relacionamentos' => post('impacto_relacionamentos'),
-    ':motivo_impacto' => post('motivo_impacto'),
-    ':mudou_pensamento' => post('mudou_pensamento'),
-    ':explicacao_pensamento' => post('explicacao_pensamento'),
-    ':recomendaria' => post('recomendaria'),
-    ':motivo_recomendacao' => post('motivo_recomendacao')
+$stmt->execute([
+    $dados['participante_id'],
+    $dados['sentimento_denuncia'] ?? null,
+    $dados['acha_justa'] ?? null,
+    $dados['motivo_denuncia'] ?? null,
+    $dados['dificuldade_participar'] ?? null,
+    $dados['motivo_dificuldade'] ?? null,
+    $dados['avaliacao_participacao'] ?? null,
+    $temas,
+    $dados['houve_mudanca'] ?? null,
+    $dados['descricao_mudanca'] ?? null,
+    $dados['gostou_grupo'] ?? null,
+    $dados['como_saiu'] ?? null,
+    $dados['recomendaria'] ?? null,
+    $dados['motivo_recomendacao'] ?? null,
+    $dados['sugestoes'] ?? null
 ]);
 
-// LOG
-registrarLog(
-    $pdo,
-    'CREATE',
-    'ficha_avaliacao_final',
-    $pdo->lastInsertId(),
-    "Criou ficha de avaliação final",
-    $_SESSION['usuario']['id']
-);
-
-header("Location: participantes_detalhes.php?id=" . $participante_id);
+header("Location: participante_fichas.php?id=" . $dados['participante_id']);
 exit;

@@ -18,7 +18,7 @@ if (!$id) {
 }
 
 $sql = $pdo->prepare("
-    SELECT id, nome, cpf, data_nascimento, email, endereco, bairro, telefone, turma_id
+    SELECT id, nome, cpf, data_nascimento, email, total_passagens, endereco, bairro, telefone, turma_id
     FROM participantes
     WHERE id = :id
 ");
@@ -60,14 +60,14 @@ $turmas = $pdo->query("SELECT id, nome FROM turmas ORDER BY nome")->fetchAll();
                 value="<?= htmlspecialchars($participante['cpf']) ?>"
                 required>
         </div>
-        
+
         <div class="mb-3">
             <label class="form-label">Data de Nascimento</label>
             <input type="date"
-                   name="data_nascimento"
-                   class="form-control"
-                   value="<?= htmlspecialchars($participante['data_nascimento']) ?>"
-                   required>
+                name="data_nascimento"
+                class="form-control"
+                value="<?= htmlspecialchars($participante['data_nascimento']) ?>"
+                required>
         </div>
 
         <div class="mb-3">
@@ -77,6 +77,12 @@ $turmas = $pdo->query("SELECT id, nome FROM turmas ORDER BY nome")->fetchAll();
                 class="form-control"
                 value="<?= htmlspecialchars($participante['email']) ?>"
                 required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Quantidade de vezes no programa</label>
+            <input type="number" name="total_passagens" class="form-control"
+                value="<?= $p['total_passagens'] ?? 0 ?>" min="0">
         </div>
 
         <div class="mb-3">

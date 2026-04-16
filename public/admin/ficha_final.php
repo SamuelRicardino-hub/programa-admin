@@ -1,123 +1,95 @@
 <?php
 require_once __DIR__ . '/../../config/conexao.php';
 require_once __DIR__ . '/../../config/auth.php';
-
-auth();
-canAny(['admin', 'atendente']);
-
-$id = $_GET['id'] ?? null;
-
-$participante_id = $_GET['participante_id'] ?? null;
-
-if (!$participante_id) {
-    die("ID do participante não informado");
-}
-
-$stmt = $pdo->prepare("SELECT * FROM participantes WHERE id = ?");
-$stmt->execute([$participante_id]);
-$participante = $stmt->fetch();
-
-if (!$participante) {
-    die("Participante não encontrado");
-}
-
 require_once __DIR__ . '/../../layout/admin_header.php';
+$id = $_GET['participante_id'] ?? null;
 ?>
 
 <div class="container mt-4">
-
     <h3>Ficha de Avaliação Final</h3>
 
     <form method="POST" action="ficha_final_salvar.php">
 
-        <input type="hidden" name="participante_id" value="<?= $participante_id ?>">
+        <input type="hidden" name="participante_id" value="<?= $id ?>">
 
-        <hr>
+        <label>Sentimento ao receber denúncia</label><br>
+        <select name="sentimento_denuncia" class="form-control mb-3">
+            <option value="raiva">Raiva</option>
+            <option value="medo">Medo</option>
+            <option value="injusticado">Injustiçado</option>
+            <option value="tristeza">Tristeza</option>
+            <option value="tranquilo">Tranquilo</option>
+            <option value="nada">Nada</option>
+        </select>
 
-        <!-- SENTIMENTO -->
-        <label>Sentimento ao receber a denúncia:</label><br>
-        <input type="radio" name="sentimento_denuncia" value="raiva"> Raiva
-        <input type="radio" name="sentimento_denuncia" value="medo"> Medo
-        <input type="radio" name="sentimento_denuncia" value="injustica"> Injustiçado
-        <input type="radio" name="sentimento_denuncia" value="outro"> Outro
+        <label>Denúncia foi justa?</label>
+        <select name="acha_justa" class="form-control mb-2">
+            <option value="sim">Sim</option>
+            <option value="nao">Não</option>
+        </select>
 
-        <textarea name="outro_sentimento" class="form-control mt-2" placeholder="Se outro, qual?"></textarea>
+        <textarea name="motivo_denuncia" class="form-control mb-3" placeholder="Motivo"></textarea>
 
-        <hr>
+        <label>Dificuldade para participar?</label>
+        <select name="dificuldade_participar" class="form-control mb-2">
+            <option value="sim">Sim</option>
+            <option value="nao">Não</option>
+        </select>
 
-        <!-- DENUNCIA -->
-        <label>Você acha justa a denúncia?</label><br>
-        <input type="radio" name="acha_justa" value="sim"> Sim
-        <input type="radio" name="acha_justa" value="nao"> Não
+        <textarea name="motivo_dificuldade" class="form-control mb-3"></textarea>
 
-        <textarea name="motivo_denuncia" class="form-control mt-2" placeholder="Explique"></textarea>
+        <label>Avaliação do grupo</label>
+        <select name="avaliacao_participacao" class="form-control mb-3">
+            <option value="otima">Ótima</option>
+            <option value="boa">Boa</option>
+            <option value="ruim">Ruim</option>
+        </select>
 
-        <hr>
-
-        <!-- DIFICULDADE -->
-        <label>Teve dificuldade em participar?</label><br>
-        <input type="radio" name="dificuldade_participar" value="sim"> Sim
-        <input type="radio" name="dificuldade_participar" value="nao"> Não
-
-        <textarea name="motivo_dificuldade" class="form-control mt-2"></textarea>
-
-        <hr>
-
-        <!-- PARTICIPAÇÃO -->
-        <label>Como avalia sua participação?</label>
-        <input type="text" name="avaliacao_participacao" class="form-control">
-
-        <hr>
-
-        <!-- GRUPO -->
-        <label>Pontos positivos:</label>
-        <textarea name="pontos_positivos" class="form-control"></textarea>
-
-        <label>Pontos negativos:</label>
-        <textarea name="pontos_negativos" class="form-control"></textarea>
-
-        <label>Temas importantes:</label>
-        <textarea name="temas_importantes" class="form-control"></textarea>
-
-        <hr>
-
-        <!-- RELACIONAMENTO -->
-        <label>Houve mudança nos relacionamentos?</label><br>
-        <input type="radio" name="houve_mudanca" value="sim"> Sim
-        <input type="radio" name="houve_mudanca" value="nao"> Não
-
-        <textarea name="descricao_mudanca" class="form-control mt-2"></textarea>
-
-        <hr>
-
-        <label>Hoje seus relacionamentos:</label><br>
-        <input type="radio" name="impacto_relacionamentos" value="melhorou"> Melhorou
-        <input type="radio" name="impacto_relacionamentos" value="dificultou"> Dificultou
-
-        <textarea name="motivo_impacto" class="form-control mt-2"></textarea>
-
-        <hr>
-
-        <label>Mudou seu pensamento?</label><br>
-        <input type="radio" name="mudou_pensamento" value="sim"> Sim
-        <input type="radio" name="mudou_pensamento" value="nao"> Não
-
-        <textarea name="explicacao_pensamento" class="form-control mt-2"></textarea>
-
-        <hr>
-
-        <label>Recomendaria o grupo?</label><br>
-        <input type="radio" name="recomendaria" value="sim"> Sim
-        <input type="radio" name="recomendaria" value="nao"> Não
-
-        <textarea name="motivo_recomendacao" class="form-control mt-2"></textarea>
+        <label>Temas importantes</label><br>
+        <?php
+        $temas = [
+            "Relações de Gênero",
+            "Autoresponsabilidade",
+            "Violência Baseada no Gênero",
+            "Inteligência emocional",
+            "Saúde do Homem",
+            "Ressocialização",
+            "Paternidade"
+        ];
+        foreach ($temas as $t):
+        ?>
+            <input type="checkbox" name="temas_importantes[]" value="<?= $t ?>"> <?= $t ?><br>
+        <?php endforeach; ?>
 
         <br>
 
-        <button class="btn btn-primary">Salvar Avaliação</button>
+        <label>Houve mudança?</label>
+        <select name="houve_mudanca" class="form-control mb-2">
+            <option value="sim">Sim</option>
+            <option value="nao">Não</option>
+        </select>
 
+        <textarea name="descricao_mudanca" class="form-control mb-3"></textarea>
+
+        <label>O que mais gostou</label>
+        <textarea name="gostou_grupo" class="form-control mb-3"></textarea>
+
+        <label>Como está saindo do grupo</label>
+        <textarea name="como_saiu" class="form-control mb-3"></textarea>
+
+        <label>Recomendaria?</label>
+        <select name="recomendaria" class="form-control mb-2">
+            <option value="sim">Sim</option>
+            <option value="nao">Não</option>
+        </select>
+
+        <textarea name="motivo_recomendacao" class="form-control mb-3"></textarea>
+
+        <label>Sugestões</label>
+        <textarea name="sugestoes" class="form-control mb-3"></textarea>
+
+        <button class="btn btn-primary">Salvar</button>
     </form>
-
 </div>
 
 <?php require_once __DIR__ . '/../../layout/admin_footer.php'; ?>

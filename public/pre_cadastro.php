@@ -7,10 +7,33 @@
 
         <?php if (isset($_GET['erro'])): ?>
             <div class="alert alert-danger">
-                CPF já cadastrado.
+                <?php
+                switch ($_GET['erro']) {
+                    case 'cpf':
+                        echo "CPF já cadastrado.";
+                        break;
+                    case 'cpf_invalido':
+                        echo "CPF inválido.";
+                        break;
+                    case 'campos':
+                        echo "Preencha todos os campos obrigatórios.";
+                        break;
+                    case 'email':
+                        echo "Email inválido.";
+                        break;
+                    default:
+                        echo "Erro ao enviar pré-cadastro.";
+                }
+                ?>
             </div>
         <?php endif; ?>
 
+        <?php if (isset($_GET['sucesso'])): ?>
+            <div class="alert alert-success">
+                Pré-cadastro enviado com sucesso!
+            </div>
+        <?php endif; ?>
+        
         <form method="POST" action="pre_cadastro_salvar.php">
 
             <div class="mb-3">
@@ -25,7 +48,7 @@
 
             <div class="mb-3">
                 <label class="form-label">Data de Nascimento</label>
-                <input type="text" name="data_nascimento" id="data_nascimento" class="form-control" required>
+                <input type="date" name="data_nascimento" id="data_nascimento" class="form-control" required>
             </div>
 
             <div class="mb-3">
@@ -61,24 +84,19 @@
 <script src="https://unpkg.com/imask"></script>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function() {
 
-    // CPF
-    IMask(document.getElementById('cpf'), {
-        mask: '000.000.000-00'
+        // CPF
+        IMask(document.getElementById('cpf'), {
+            mask: '000.000.000-00'
+        });
+
+        // Telefone
+        IMask(document.getElementById('telefone'), {
+            mask: '(00) 00000-0000'
+        });
+
     });
-
-    // Telefone
-    IMask(document.getElementById('telefone'), {
-        mask: '(00) 00000-0000'
-    });
-
-    // Data
-    IMask(document.getElementById('data_nascimento'), {
-        mask: '00/00/0000'
-    });
-
-});
 </script>
 
-<?php require_once __DIR__ . "/../layout/public_footer.php"; ?> 
+<?php require_once __DIR__ . "/../layout/public_footer.php"; ?>

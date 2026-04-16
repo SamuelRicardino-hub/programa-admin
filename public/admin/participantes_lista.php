@@ -98,6 +98,7 @@ if ($turma_id) {
                         <th>CPF</th>
                         <th>Idade</th>
                         <th>email</th>
+                        <th>Passagens</th>
                         <th>Turma</th>
                         <th class="text-center">Ações</th>
                     </tr>
@@ -109,6 +110,7 @@ if ($turma_id) {
                             <td><?= htmlspecialchars($p['cpf']) ?></td>
                             <td><?= calcularIdade($p['data_nascimento']) ?> anos</td>
                             <td><?= htmlspecialchars($p['email']) ?></td>
+                            <td><?= htmlspecialchars($p['total_passagens']) ?>
                             <td><?= htmlspecialchars($p['turma']) ?></td>
                             <td class="text-center">
 

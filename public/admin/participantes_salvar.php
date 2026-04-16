@@ -13,6 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $nome      = trim($_POST['nome'] ?? '');
 $telefone  = trim($_POST['telefone'] ?? '');
 $email     = trim($_POST['email'] ?? '');
+$total_passagens = $_POST['total_passagens'] ?? 0;
 $endereco = trim($_POST['endereco']);
 $bairro = trim($_POST['bairro']);
 $turma_id  = $_POST['turma_id'] ?? null;
