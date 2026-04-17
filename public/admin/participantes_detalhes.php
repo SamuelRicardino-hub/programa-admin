@@ -164,42 +164,57 @@ require_once __DIR__ . '/../../layout/admin_header.php';
     $temFichaFinal = $stmt->fetch();
     ?>
 
-    <div class="mt-3">
+    <div class="card mt-3">
+        <div class="card-body">
 
-        <!-- VÍTIMA -->
-        <?php if ($participante['tipo'] == 'vitima'): ?>
+            <h5 class="mb-3">📋 Fichas do Participante</h5>
 
-            <?php if (!$temFichaInclusao): ?>
-                <a href="ficha_inclusao.php?participante_id=<?= $participante['id'] ?>"
-                    class="btn btn-primary">
-                    🧾 Preencher Ficha de Inclusão
+            <!-- Ficha Inclusão -->
+            <?php if ($temFichaInclusao): ?>
+                <a href="participante_fichas.php?id=<?= $participante['id'] ?>"
+                    class="btn btn-outline-primary me-2">
+                    Ver Ficha de Inclusão
+                </a>
+
+                <a href="ficha_inclusao.php?id=<?= $participante['id'] ?>"
+                    class="btn btn-primary me-2">
+                    Editar Inclusão
                 </a>
             <?php else: ?>
-                <span class="badge bg-success">Ficha de Inclusão já preenchida</span>
-            <?php endif; ?>
-
-        <?php endif; ?>
-
-
-        <!-- AUTOR -->
-        <?php if ($participante['tipo'] == 'autor'): ?>
-
-            <?php if (!$temFichaFinal): ?>
-                <a href="ficha_final.php?participante_id=<?= $participante['id'] ?>"
-                    class="btn btn-warning">
-                    📊 Preencher Ficha Final
-                </a>
-            <?php else: ?>
-                <span class="badge bg-success">Ficha Final já preenchida</span>
-
-                <a href="vincular_caso.php?participante_id=<?= $participante['id'] ?>"
-                    class="btn btn-danger">
-                    🔗 Vincular a Vítima / Criar Caso
+                <a href="ficha_inclusao.php?id=<?= $participante['id'] ?>"
+                    class="btn btn-success me-2">
+                    + Preencher Ficha de Inclusão
                 </a>
             <?php endif; ?>
 
-        <?php endif; ?>
 
+            <!-- Ficha Final -->
+            <?php if ($temFichaInclusao): ?>
+
+                <?php if ($temFichaFinal): ?>
+                    <a href="participante_fichas.php?id=<?= $participante['id'] ?>"
+                        class="btn btn-outline-dark me-2">
+                        Ver Ficha Final
+                    </a>
+
+                    <a href="ficha_final.php?id=<?= $participante['id'] ?>"
+                        class="btn btn-dark">
+                        Editar Ficha Final
+                    </a>
+                <?php else: ?>
+                    <a href="ficha_final.php?id=<?= $participante['id'] ?>"
+                        class="btn btn-warning">
+                        + Preencher Ficha Final
+                    </a>
+                <?php endif; ?>
+
+            <?php else: ?>
+                <button class="btn btn-secondary" disabled>
+                    Ficha Final (preencha a inclusão primeiro)
+                </button>
+            <?php endif; ?>
+
+        </div>
     </div>
 
     <hr>

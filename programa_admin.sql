@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 07/04/2026 às 21:54
+-- Tempo de geração: 17/04/2026 às 21:56
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.0.30
 
@@ -86,21 +86,16 @@ CREATE TABLE `ficha_avaliacao_final` (
   `motivo_denuncia` text DEFAULT NULL,
   `dificuldade_participar` enum('sim','nao') DEFAULT NULL,
   `motivo_dificuldade` text DEFAULT NULL,
-  `avaliacao_participacao` varchar(100) DEFAULT NULL,
-  `sentimento_inicio` varchar(100) DEFAULT NULL,
-  `outro_sentimento` text DEFAULT NULL,
+  `avaliacao_participacao` enum('otima','boa','ruim') DEFAULT NULL,
   `pontos_positivos` text DEFAULT NULL,
   `pontos_negativos` text DEFAULT NULL,
   `temas_importantes` text DEFAULT NULL,
   `houve_mudanca` enum('sim','nao') DEFAULT NULL,
   `descricao_mudanca` text DEFAULT NULL,
-  `gostou_grupo` text DEFAULT NULL,
-  `impacto_relacionamentos` enum('melhorou','dificultou') DEFAULT NULL,
-  `motivo_impacto` text DEFAULT NULL,
-  `mudou_pensamento` enum('sim','nao') DEFAULT NULL,
-  `explicacao_pensamento` text DEFAULT NULL,
+  `gostou_grupo` enum('sim','nao') DEFAULT NULL,
   `recomendaria` enum('sim','nao') DEFAULT NULL,
   `motivo_recomendacao` text DEFAULT NULL,
+  `sugestoes` text DEFAULT NULL,
   `criado_em` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -108,8 +103,8 @@ CREATE TABLE `ficha_avaliacao_final` (
 -- Despejando dados para a tabela `ficha_avaliacao_final`
 --
 
-INSERT INTO `ficha_avaliacao_final` (`id`, `participante_id`, `sentimento_denuncia`, `acha_justa`, `motivo_denuncia`, `dificuldade_participar`, `motivo_dificuldade`, `avaliacao_participacao`, `sentimento_inicio`, `outro_sentimento`, `pontos_positivos`, `pontos_negativos`, `temas_importantes`, `houve_mudanca`, `descricao_mudanca`, `gostou_grupo`, `impacto_relacionamentos`, `motivo_impacto`, `mudou_pensamento`, `explicacao_pensamento`, `recomendaria`, `motivo_recomendacao`, `criado_em`) VALUES
-(2, 28, 'medo', 'sim', '', 'nao', '', 'Razoável', NULL, NULL, 'Entender qual foi meu erro e tentar melhorar', 'Ter perdido contato com minha ex mulher', 'Aprender a controlar os sentimentos', 'sim', '', NULL, 'melhorou', '', 'sim', '', 'sim', '', '2026-04-07 16:32:05');
+INSERT INTO `ficha_avaliacao_final` (`id`, `participante_id`, `sentimento_denuncia`, `acha_justa`, `motivo_denuncia`, `dificuldade_participar`, `motivo_dificuldade`, `avaliacao_participacao`, `pontos_positivos`, `pontos_negativos`, `temas_importantes`, `houve_mudanca`, `descricao_mudanca`, `gostou_grupo`, `recomendaria`, `motivo_recomendacao`, `sugestoes`, `criado_em`) VALUES
+(2, 28, 'medo', 'sim', '', 'nao', '', '', 'Entender qual foi meu erro e tentar melhorar', 'Ter perdido contato com minha ex mulher', 'Aprender a controlar os sentimentos', 'sim', '', NULL, 'sim', '', NULL, '2026-04-07 16:32:05');
 
 -- --------------------------------------------------------
 
@@ -124,7 +119,6 @@ CREATE TABLE `ficha_inclusao` (
   `religiao` varchar(100) DEFAULT NULL,
   `escolaridade` varchar(100) DEFAULT NULL,
   `renda_familiar` varchar(100) DEFAULT NULL,
-  `ocupacao` varchar(150) DEFAULT NULL,
   `profissao` varchar(150) DEFAULT NULL,
   `ocupacao_companheira` varchar(150) DEFAULT NULL,
   `profissao_companheira` varchar(150) DEFAULT NULL,
@@ -142,15 +136,30 @@ CREATE TABLE `ficha_inclusao` (
   `situacao_juridica` text DEFAULT NULL,
   `expectativa_grupo` text DEFAULT NULL,
   `criado_em` datetime DEFAULT current_timestamp(),
-  `participante_id` int(11) NOT NULL
+  `participante_id` int(11) NOT NULL,
+  `numero_caso` varchar(50) DEFAULT NULL,
+  `numero_processo` varchar(50) DEFAULT NULL,
+  `parentesco` varchar(100) DEFAULT NULL,
+  `idade` int(11) DEFAULT NULL,
+  `naturalidade` varchar(100) DEFAULT NULL,
+  `relacionamento_atual` varchar(50) DEFAULT NULL,
+  `relacionamento_detalhe` varchar(100) DEFAULT NULL,
+  `trabalho` varchar(100) DEFAULT NULL,
+  `religiao_outro` varchar(150) DEFAULT NULL,
+  `escolaridade_outro` varchar(150) DEFAULT NULL,
+  `renda_outro` varchar(150) DEFAULT NULL,
+  `trabalho_outro` varchar(150) DEFAULT NULL,
+  `moradia_outro` varchar(150) DEFAULT NULL,
+  `relacionamento_outro` varchar(150) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Despejando dados para a tabela `ficha_inclusao`
 --
 
-INSERT INTO `ficha_inclusao` (`id`, `cor`, `situacao_civil`, `religiao`, `escolaridade`, `renda_familiar`, `ocupacao`, `profissao`, `ocupacao_companheira`, `profissao_companheira`, `condicao_moradia`, `numero_filhos`, `numero_pessoas_casa`, `problemas_saude`, `uso_medicacao`, `uso_alcool`, `frequencia_bebida`, `drogas_utilizadas`, `violencia_praticada`, `violencia_sofrida`, `historico_familiar`, `situacao_juridica`, `expectativa_grupo`, `criado_em`, `participante_id`) VALUES
-(5, 'Preta', 'Divorciada', 'Católica', 'Ensino Superior completo', '7000', '', 'Diretora Escolar', NULL, NULL, 'Boa', 2, 3, 'Hipertensão', 'Remédio para pressão arterial de 12 em 12h.', 'Não', 'Nunca', 'Nenhuma', 'Defesa pessoal', 'Agressões físicas', '', 'Em julgamento', 'Superar o trauma, aprender e ajudar mais mulheres a lidar com isso.', '2026-04-07 16:24:46', 27);
+INSERT INTO `ficha_inclusao` (`id`, `cor`, `situacao_civil`, `religiao`, `escolaridade`, `renda_familiar`, `profissao`, `ocupacao_companheira`, `profissao_companheira`, `condicao_moradia`, `numero_filhos`, `numero_pessoas_casa`, `problemas_saude`, `uso_medicacao`, `uso_alcool`, `frequencia_bebida`, `drogas_utilizadas`, `violencia_praticada`, `violencia_sofrida`, `historico_familiar`, `situacao_juridica`, `expectativa_grupo`, `criado_em`, `participante_id`, `numero_caso`, `numero_processo`, `parentesco`, `idade`, `naturalidade`, `relacionamento_atual`, `relacionamento_detalhe`, `trabalho`, `religiao_outro`, `escolaridade_outro`, `renda_outro`, `trabalho_outro`, `moradia_outro`, `relacionamento_outro`) VALUES
+(5, 'Preta', 'Divorciada', 'Católica', 'Ensino Superior completo', '7000', 'Diretora Escolar', NULL, NULL, 'Boa', 2, 3, 'Hipertensão', 'Remédio para pressão arterial de 12 em 12h.', 'Não', 'Nunca', 'Nenhuma', 'Defesa pessoal', 'Agressões físicas', '', 'Em julgamento', 'Superar o trauma, aprender e ajudar mais mulheres a lidar com isso.', '2026-04-07 16:24:46', 27, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(6, 'Preta', NULL, 'Católica', 'Ensino Superior', NULL, 'Inspetor Escolar', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-04-17 15:57:29', 169, '1', '1', 'Ex-marido', 46, 'Brasileiro', NULL, NULL, 'Empregado Carteira Assinada', NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -166,18 +175,24 @@ CREATE TABLE `logs` (
   `tipo` varchar(50) DEFAULT NULL,
   `entidade` varchar(50) DEFAULT NULL,
   `entidade_id` int(11) DEFAULT NULL,
-  `ip` varchar(45) DEFAULT NULL
+  `ip` varchar(45) DEFAULT NULL,
+  `dados` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Despejando dados para a tabela `logs`
 --
 
-INSERT INTO `logs` (`id`, `usuario_id`, `acao`, `data`, `tipo`, `entidade`, `entidade_id`, `ip`) VALUES
-(1, 3, 'Excluiu participante ID 1', '2026-03-19 16:30:13', 'DELETE', 'participantes', 1, NULL),
-(2, 3, 'Editou turma: Fisioterapia → Fisioterapia (ID 2)', '2026-03-19 16:30:26', 'UPDATE', 'turmas', 2, NULL),
-(3, 3, 'Editou turma: Fisioterapia → Fisioterapia (ID 2)', '2026-03-19 16:30:35', 'UPDATE', 'turmas', 2, NULL),
-(4, 3, 'Editou turma: Fisioterapia → Fisioterapia (ID 2)', '2026-03-19 16:39:23', 'UPDATE', 'turmas', 2, NULL);
+INSERT INTO `logs` (`id`, `usuario_id`, `acao`, `data`, `tipo`, `entidade`, `entidade_id`, `ip`, `dados`) VALUES
+(1, 3, 'Excluiu participante ID 1', '2026-03-19 16:30:13', 'DELETE', 'participantes', 1, NULL, NULL),
+(2, 3, 'Editou turma: Fisioterapia → Fisioterapia (ID 2)', '2026-03-19 16:30:26', 'UPDATE', 'turmas', 2, NULL, NULL),
+(3, 3, 'Editou turma: Fisioterapia → Fisioterapia (ID 2)', '2026-03-19 16:30:35', 'UPDATE', 'turmas', 2, NULL, NULL),
+(4, 3, 'Editou turma: Fisioterapia → Fisioterapia (ID 2)', '2026-03-19 16:39:23', 'UPDATE', 'turmas', 2, NULL, NULL),
+(6, 1, 'Pré-cadastro aprovado', '2026-04-16 16:42:04', 'APROVACAO', 'pre_cadastro', 32, '192.168.101.28', NULL),
+(7, 1, 'Pré-cadastro aprovado', '2026-04-16 16:42:17', 'APROVACAO', 'pre_cadastro', 30, '192.168.101.28', NULL),
+(8, 1, 'Editou participante: Juan Matheus Silva → Maria Gilvânia (ID 170)', '2026-04-16 16:43:44', 'UPDATE', 'participantes', 170, '192.168.101.28', NULL),
+(9, 1, 'Editou turma: Agressores → Turma 1 (ID 4)', '2026-04-16 16:49:20', 'UPDATE', 'turmas', 4, '192.168.101.28', NULL),
+(10, 1, 'Editou turma: Vítimas → Turma 2 (ID 3)', '2026-04-16 16:49:28', 'UPDATE', 'turmas', 3, '192.168.101.28', NULL);
 
 -- --------------------------------------------------------
 
@@ -188,7 +203,7 @@ INSERT INTO `logs` (`id`, `usuario_id`, `acao`, `data`, `tipo`, `entidade`, `ent
 CREATE TABLE `participantes` (
   `id` int(11) NOT NULL,
   `nome` varchar(120) NOT NULL,
-  `cpf` varchar(14) DEFAULT NULL,
+  `cpf` varchar(11) DEFAULT NULL,
   `data_nascimento` date DEFAULT NULL,
   `telefone` varchar(20) DEFAULT NULL,
   `email` varchar(120) DEFAULT NULL,
@@ -198,17 +213,19 @@ CREATE TABLE `participantes` (
   `observacoes` text DEFAULT NULL,
   `criado_em` timestamp NOT NULL DEFAULT current_timestamp(),
   `caso_id` int(11) DEFAULT NULL,
-  `tipo` enum('vitima','autor') DEFAULT NULL,
-  `status` enum('ativo','inativo') DEFAULT 'ativo'
+  `status` enum('ativo','inativo') DEFAULT 'ativo',
+  `total_passagens` int(11) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Despejando dados para a tabela `participantes`
 --
 
-INSERT INTO `participantes` (`id`, `nome`, `cpf`, `data_nascimento`, `telefone`, `email`, `endereco`, `bairro`, `turma_id`, `observacoes`, `criado_em`, `caso_id`, `tipo`, `status`) VALUES
-(27, 'Joana Barcelos', '462.359.794-89', '1995-11-25', '(21) 99872-4565', 'joanabarcelos@gmail.com', 'Rua da Esperança, 999', 'Sabugo', 3, NULL, '2026-04-07 18:00:53', 6, 'vitima', 'ativo'),
-(28, 'João Cláudio', '165.297.485-59', '2001-06-25', '(21) 99875-2659', 'joaoclaudio@gmail.com', 'Avenida Juan Freytes, 22', 'Guarajuba', 4, NULL, '2026-04-07 18:38:00', 6, 'autor', 'ativo');
+INSERT INTO `participantes` (`id`, `nome`, `cpf`, `data_nascimento`, `telefone`, `email`, `endereco`, `bairro`, `turma_id`, `observacoes`, `criado_em`, `caso_id`, `status`, `total_passagens`) VALUES
+(27, 'Joana Barcelos', '46235979489', '1995-11-25', '(21) 99872-4565', 'joanabarcelos@gmail.com', 'Rua da Esperança, 999', 'Sabugo', 3, NULL, '2026-04-07 18:00:53', 6, 'ativo', 0),
+(28, 'João Cláudio', '16529748559', '2001-06-25', '(21) 99875-2659', 'joaoclaudio@gmail.com', 'Avenida Juan Freytes, 22', 'Guarajuba', 4, NULL, '2026-04-07 18:38:00', 6, 'ativo', 0),
+(169, 'Everson Neri Fonseca', '05296440706', '1979-11-09', '21998758429', 'eversonfonseca@gmail.com', 'Avenida Jonas Leal, 769', 'Lages', 4, NULL, '2026-04-16 19:42:04', NULL, 'ativo', 0),
+(170, 'Maria Gilvânia', '52998224725', '2008-01-21', '21987546884', 'juanmatheus@email.com', 'Avenida Pedro II, 154', 'Jardim Nova Era', 3, NULL, '2026-04-16 19:42:17', NULL, 'ativo', 0);
 
 -- --------------------------------------------------------
 
@@ -224,6 +241,13 @@ CREATE TABLE `presencas` (
   `observacao` text DEFAULT NULL,
   `registrado_em` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `presencas`
+--
+
+INSERT INTO `presencas` (`id`, `sessao_id`, `participante_id`, `status`, `observacao`, `registrado_em`) VALUES
+(1, 3, 28, 'presente', '', '2026-04-09 17:47:19');
 
 -- --------------------------------------------------------
 
@@ -275,7 +299,12 @@ INSERT INTO `pre_cadastros` (`id`, `nome`, `cpf`, `data_nascimento`, `telefone`,
 (24, 'Juliana Soares', '578.598.162-36', '2001-05-30', '(21) 99658-4875', 'juliana.soares@gmail.com', 'Rua Bezerra de Menezes, 637', 'Lages', 'aprovado', '2026-03-26 17:50:19'),
 (25, 'Joana Barcelos', '462.359.794-89', '1995-11-25', '(21) 99872-4565', 'joanabarcelos@gmail.com', 'Rua da Esperança, 999', 'Sabugo', 'aprovado', '2026-03-27 18:28:12'),
 (26, 'Mariana de Souza', '487.596.265-58', '1992-12-15', '(21) 99745-4815', 'marianasouza@gmail.com', 'Rua da Alegria, 877', 'Bom Jardim', 'aprovado', '2026-03-27 18:29:40'),
-(27, 'João Cláudio', '165.297.485-59', '2001-06-25', '(21) 99875-2659', 'joaoclaudio@gmail.com', 'Avenida Juan Freytes, 22', 'Guarajuba', 'aprovado', '2026-04-07 18:35:49');
+(27, 'João Cláudio', '165.297.485-59', '2001-06-25', '(21) 99875-2659', 'joaoclaudio@gmail.com', 'Avenida Juan Freytes, 22', 'Guarajuba', 'aprovado', '2026-04-07 18:35:49'),
+(28, 'ndusaipfçdhsfahuisa', '15426598748', '2000-04-15', '21985647854', 'fasjifpbadsk@xn--mkfsalf-wxa.com', 'dfadfksahuiodçgf', 'rfgasfjdgçko', 'rejeitado', '2026-04-09 19:03:29'),
+(29, 'Teste Nome', '12345678909', '2000-01-01', '21999999999', 'teste@email.com', 'Rua Teste', 'Centro', 'pendente', '2026-04-16 18:07:49'),
+(30, 'Juan Matheus Silva', '52998224725', '2008-01-21', '21987546884', 'juanmatheus@email.com', 'Avenida Pedro II, 154', 'Jardim Nova Era', 'aprovado', '2026-04-16 18:18:38'),
+(31, 'Pedro Paulo', '19505831714', '2000-05-21', '21987451245', 'pedropaulo@email.com', 'Avenida João Paulo Soares, 483', 'Km 9', 'pendente', '2026-04-16 18:47:21'),
+(32, 'Everson Neri Fonseca', '05296440706', '1979-11-09', '21998758429', 'eversonfonseca@gmail.com', 'Avenida Jonas Leal, 769', 'Lages', 'aprovado', '2026-04-16 18:48:49');
 
 -- --------------------------------------------------------
 
@@ -299,8 +328,8 @@ CREATE TABLE `turmas` (
 --
 
 INSERT INTO `turmas` (`id`, `nome`, `descricao`, `responsavel`, `data_inicio`, `data_fim`, `status`, `criado_em`) VALUES
-(3, 'Vítimas', '', 'Márcia', '2026-04-15', '2026-06-15', 'ativa', '2026-03-26 17:36:51'),
-(4, 'Agressores', '', 'Juliana', '2026-04-07', '2026-12-31', 'ativa', '2026-04-07 18:00:32');
+(3, 'Turma 2', '', 'Márcia', '2026-04-15', '2026-06-15', 'ativa', '2026-03-26 17:36:51'),
+(4, 'Turma 1', '', 'Juliana', '2026-04-07', '2026-12-31', 'ativa', '2026-04-07 18:00:32');
 
 -- --------------------------------------------------------
 
@@ -322,7 +351,8 @@ CREATE TABLE `turmas_sessoes` (
 
 INSERT INTO `turmas_sessoes` (`id`, `turma_id`, `data`, `descricao`, `criado_em`) VALUES
 (1, 3, '2026-03-27', NULL, '2026-03-27 17:58:00'),
-(2, 3, '2026-03-18', NULL, '2026-03-27 18:21:58');
+(2, 3, '2026-03-18', NULL, '2026-03-27 18:21:58'),
+(3, 4, '2026-04-10', 'Sessão do dia 10/04', '2026-04-09 17:45:48');
 
 -- --------------------------------------------------------
 
@@ -403,7 +433,8 @@ ALTER TABLE `participantes`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `cpf` (`cpf`),
   ADD KEY `turma_id` (`turma_id`),
-  ADD KEY `caso_id` (`caso_id`);
+  ADD KEY `caso_id` (`caso_id`),
+  ADD KEY `idx_nome` (`nome`);
 
 --
 -- Índices de tabela `presencas`
@@ -454,7 +485,7 @@ ALTER TABLE `anexos`
 -- AUTO_INCREMENT de tabela `casos`
 --
 ALTER TABLE `casos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT de tabela `casos_andamento`
@@ -472,31 +503,31 @@ ALTER TABLE `ficha_avaliacao_final`
 -- AUTO_INCREMENT de tabela `ficha_inclusao`
 --
 ALTER TABLE `ficha_inclusao`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de tabela `logs`
 --
 ALTER TABLE `logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de tabela `participantes`
 --
 ALTER TABLE `participantes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=171;
 
 --
 -- AUTO_INCREMENT de tabela `presencas`
 --
 ALTER TABLE `presencas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de tabela `pre_cadastros`
 --
 ALTER TABLE `pre_cadastros`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT de tabela `turmas`
@@ -508,7 +539,7 @@ ALTER TABLE `turmas`
 -- AUTO_INCREMENT de tabela `turmas_sessoes`
 --
 ALTER TABLE `turmas_sessoes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de tabela `usuarios`

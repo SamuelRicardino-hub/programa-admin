@@ -13,8 +13,9 @@ $sql = "
     SELECT p.id,
      p.nome,
      p.cpf,
-     p.data_nascimento AS data_nascimento,
-     p.email, 
+     p.data_nascimento,
+     p.email,
+     p.total_passagens,
      t.nome AS turma
     FROM participantes p
     JOIN turmas t ON t.id = p.turma_id
@@ -110,7 +111,9 @@ if ($turma_id) {
                             <td><?= htmlspecialchars($p['cpf']) ?></td>
                             <td><?= calcularIdade($p['data_nascimento']) ?> anos</td>
                             <td><?= htmlspecialchars($p['email']) ?></td>
-                            <td><?= htmlspecialchars($p['total_passagens']) ?>
+                            <td><span class="badge bg-primary">
+                                    <?= $p['total_passagens'] ?? 0 ?>
+                                </span></td>
                             <td><?= htmlspecialchars($p['turma']) ?></td>
                             <td class="text-center">
 

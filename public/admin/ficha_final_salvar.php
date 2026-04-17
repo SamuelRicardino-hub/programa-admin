@@ -2,49 +2,100 @@
 require_once __DIR__ . '/../../config/conexao.php';
 require_once __DIR__ . '/../../config/auth.php';
 
-$dados = $_POST;
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    die("Acesso inválido");
+}
 
-$temas = isset($dados['temas_importantes']) 
-    ? implode(', ', $dados['temas_importantes']) 
+function tratar($v) {
+    return (isset($v) && trim($v) !== '') ? trim($v) : null;
+}
+
+$participante_id = $_POST['participante_id'] ?? null;
+
+if (!$participante_id) {
+    die("Participante não informado");
+}
+
+// TRATAR CHECKBOX (temas)
+$temas = isset($_POST['temas_importantes']) 
+    ? implode(', ', $_POST['temas_importantes']) 
     : null;
 
-$stmt = $pdo->prepare("
-INSERT INTO ficha_avaliacao_final (
-    participante_id,
-    sentimento_denuncia,
-    acha_justa,
-    motivo_denuncia,
-    dificuldade_participar,
-    motivo_dificuldade,
-    avaliacao_participacao,
-    temas_importantes,
-    houve_mudanca,
-    descricao_mudanca,
-    gostou_grupo,
-    como_saiu,
-    recomendaria,
-    motivo_recomendacao,
-    sugestoes
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-");
-
-$stmt->execute([
-    $dados['participante_id'],
-    $dados['sentimento_denuncia'] ?? null,
-    $dados['acha_justa'] ?? null,
-    $dados['motivo_denuncia'] ?? null,
-    $dados['dificuldade_participar'] ?? null,
-    $dados['motivo_dificuldade'] ?? null,
-    $dados['avaliacao_participacao'] ?? null,
+// DADOS
+$dados = [
+    tratar($_POST['sentimento_denuncia']),
+    tratar($_POST['acha_justa']),
+    tratar($_POST['motivo_denuncia']),
+    tratar($_POST['dificuldade_participar']),
+    tratar($_POST['motivo_dificuldade']),
+    tratar($_POST['avaliacao_participacao']),
+    tratar($_POST['pontos_positivos']),
+    tratar($_POST['pontos_negativos']),
     $temas,
-    $dados['houve_mudanca'] ?? null,
-    $dados['descricao_mudanca'] ?? null,
-    $dados['gostou_grupo'] ?? null,
-    $dados['como_saiu'] ?? null,
-    $dados['recomendaria'] ?? null,
-    $dados['motivo_recomendacao'] ?? null,
-    $dados['sugestoes'] ?? null
-]);
+    tratar($_POST['houve_mudanca']),
+    tratar($_POST['descricao_mudanca']),
+    tratar($_POST['gostou_grupo']),
+    tratar($_POST['sentimento_inicio']),
+    tratar($_POST['recomendaria']),
+    tratar($_POST['motivo_recomendacao']),
+    tratar($_POST['sugestoes']),
+    $participante_id
+];
 
-header("Location: participante_fichas.php?id=" . $dados['participante_id']);
+// VERIFICA SE JÁ EXISTE
+$stmt = $pdo->prepare("SELECT id FROM ficha_avaliacao_final WHERE participante_id = ?");
+$stmt->execute([$participante_id]);
+
+if ($stmt->fetch()) {
+
+    // UPDATE
+    $sql = "UPDATE ficha_avaliacao_final SET
+        sentimento_denuncia = ?,
+        acha_justa = ?,
+        motivo_denuncia = ?,
+        dificuldade_participar = ?,
+        motivo_dificuldade = ?,
+        avaliacao_participacao = ?,
+        pontos_positivos = ?,
+        pontos_negativos = ?,
+        temas_importantes = ?,
+        houve_mudanca = ?,
+        descricao_mudanca = ?,
+        gostou_grupo = ?,
+        sentimento_inicio = ?,
+        recomendaria = ?,
+        motivo_recomendacao = ?,
+        sugestoes = ?
+        WHERE participante_id = ?";
+
+} else {
+
+    // INSERT
+    $sql = "INSERT INTO ficha_avaliacao_final (
+        sentimento_denuncia,
+        acha_justa,
+        motivo_denuncia,
+        dificuldade_participar,
+        motivo_dificuldade,
+        avaliacao_participacao,
+        pontos_positivos,
+        pontos_negativos,
+        temas_importantes,
+        houve_mudanca,
+        descricao_mudanca,
+        gostou_grupo,
+        sentimento_inicio,
+        recomendaria,
+        motivo_recomendacao,
+        sugestoes,
+        participante_id
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+}
+
+$stmt = $pdo->prepare($sql);
+$stmt->execute($dados);
+
+// REDIRECIONA
+header("Location: participantes_detalhes.php?id=" . $participante_id);
 exit;
