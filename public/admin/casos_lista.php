@@ -6,24 +6,6 @@ require_once __DIR__ . '/../../layout/admin_header.php';
 auth();
 canAny(['admin','atendente']);
 
-$sql = $pdo->query("
-SELECT 
-c.id,
-
-vitima.nome AS vitima_nome,
-autor.nome AS autor_nome
-
-FROM casos c
-
-LEFT JOIN participantes vitima 
-ON vitima.caso_id = c.id AND vitima.tipo = 'vitima'
-
-LEFT JOIN participantes autor 
-ON autor.caso_id = c.id AND autor.tipo = 'autor'
-
-ORDER BY c.id DESC
-");
-
 $casos = $sql->fetchAll(PDO::FETCH_ASSOC);
 ?>
 

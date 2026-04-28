@@ -1,232 +1,122 @@
 <?php
 require_once __DIR__ . '/../../config/conexao.php';
 require_once __DIR__ . '/../../config/auth.php';
+require_once __DIR__ . '/../../layout/admin_header.php';
 
 auth();
-canAny(['admin', 'atendente']);
 
 $id = $_GET['id'] ?? null;
+if (!$id) die("Participante não informado");
 
-if (!$id) {
-    header("Location: participantes_lista.php");
-    exit;
-}
-
-// 👤 PARTICIPANTE + TURMA
-$sql = $pdo->prepare("
-    SELECT p.*, t.nome AS turma_nome, t.responsavel
+// Participante + turma
+$stmt = $pdo->prepare("
+    SELECT p.*, t.nome AS turma_nome
     FROM participantes p
     LEFT JOIN turmas t ON t.id = p.turma_id
     WHERE p.id = ?
 ");
-$sql->execute([$id]);
-$participante = $sql->fetch(PDO::FETCH_ASSOC);
-
-if (!$participante) {
-    die("Participante não encontrado");
-}
-
-$stmt = $pdo->prepare("
-    SELECT 
-        l.acao,
-        l.tipo,
-        l.data,
-        u.nome as usuario_nome
-    FROM logs l
-    LEFT JOIN usuarios u ON u.id = l.usuario_id
-    WHERE l.entidade = 'participantes'
-    AND l.entidade_id = ?
-    ORDER BY l.data DESC
-");
 $stmt->execute([$id]);
-$logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$p = $stmt->fetch();
 
-require_once __DIR__ . '/../../layout/admin_header.php';
+if (!$p) die("Participante não encontrado");
+
+// Verificar fichas
+$stmt = $pdo->prepare("SELECT id FROM ficha_inclusao WHERE participante_id = ?");
+$stmt->execute([$id]);
+$inclusao = $stmt->fetch();
+
+$stmt = $pdo->prepare("SELECT id FROM ficha_avaliacao_final WHERE participante_id = ?");
+$stmt->execute([$id]);
+$final = $stmt->fetch();
+
+// Função helper
+function campo($valor) {
+    return $valor ? htmlspecialchars($valor) : '<span class="text-muted">Não informado</span>';
+}
 ?>
 
 <div class="container mt-4">
 
-    <h3 class="mb-4">Detalhes do Participante</h3>
+    <h3>👤 Detalhes do Participante</h3>
 
-    <!-- 👤 DADOS PESSOAIS -->
-    <div class="card mb-3 shadow-sm">
+    <div class="card mb-4 shadow">
         <div class="card-body">
-            <h5 class="mb-3">Dados Pessoais</h5>
+
+            <h5 class="mb-3"><?= htmlspecialchars($p['nome']) ?></h5>
 
             <div class="row">
-                <div class="col-md-6">
-                    <p><strong>Nome:</strong> <?= htmlspecialchars($participante['nome']) ?></p>
-                    <p><strong>CPF:</strong> <?= htmlspecialchars($participante['cpf']) ?></p>
-                    <p><strong>Email:</strong> <?= htmlspecialchars($participante['email']) ?></p>
+
+                <div class="col-md-4 mb-2">
+                    <strong>Nº Processo:</strong><br>
+                    <?= campo($p['numero_processo']) ?>
                 </div>
 
-                <div class="col-md-6">
-                    <p><strong>Telefone:</strong> <?= htmlspecialchars($participante['telefone']) ?></p>
-                    <p><strong>Data de Nascimento:</strong>
-                        <?= date('d/m/Y', strtotime($participante['data_nascimento'])) ?>
-                    </p>
+                <div class="col-md-4 mb-2">
+                    <strong>Turma:</strong><br>
+                    <?= campo($p['turma_nome']) ?>
                 </div>
+
+                <div class="col-md-4 mb-2">
+                    <strong>Total de Passagens:</strong><br>
+                    <?= campo($p['total_passagens']) ?>
+                </div>
+
             </div>
-        </div>
-    </div>
 
-    <!-- 📍 ENDEREÇO -->
-    <div class="card mb-3 shadow-sm">
-        <div class="card-body">
-            <h5 class="mb-3">Endereço</h5>
-
-            <p><strong>Endereço:</strong> <?= htmlspecialchars($participante['endereco']) ?></p>
-            <p><strong>Bairro:</strong> <?= htmlspecialchars($participante['bairro']) ?></p>
-        </div>
-    </div>
-
-    <!-- 🏫 TURMA -->
-    <div class="card mb-3 shadow-sm">
-        <div class="card-body">
-            <h5 class="mb-3">Informações da Turma</h5>
-
-            <p><strong>Turma:</strong> <?= htmlspecialchars($participante['turma_nome'] ?? 'Não vinculada') ?></p>
-            <p><strong>Responsável:</strong> <?= htmlspecialchars($participante['responsavel'] ?? '-') ?></p>
-        </div>
-    </div>
-
-    <!-- 📝 OBSERVAÇÕES -->
-    <?php if (!empty($participante['observacoes'])): ?>
-        <div class="card mb-3 shadow-sm">
-            <div class="card-body">
-                <h5 class="mb-3">Observações</h5>
-
-                <p><?= nl2br(htmlspecialchars($participante['observacoes'])) ?></p>
-            </div>
-        </div>
-    <?php endif; ?>
-
-    <!-- 📜 HISTÓRICO -->
-    <div class="card mb-3 shadow-sm">
-        <div class="card-body">
-
-            <h5 class="mb-3">Histórico</h5>
-
-            <?php if (empty($logs)): ?>
-                <p class="text-muted">Nenhuma ação registrada.</p>
-            <?php else: ?>
-
-                <table class="table table-sm table-bordered">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Data</th>
-                            <th>Usuário</th>
-                            <th>Tipo</th>
-                            <th>Ação</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-
-                        <?php foreach ($logs as $log): ?>
-                            <tr>
-                                <td><?= date('d/m/Y H:i', strtotime($log['data'])) ?></td>
-
-                                <td>
-                                    <?= htmlspecialchars($log['usuario_nome'] ?? 'Sistema') ?>
-                                </td>
-
-                                <td>
-                                    <span class="badge 
-                                    <?= $log['tipo'] == 'CREATE' ? 'bg-success' : '' ?>
-                                    <?= $log['tipo'] == 'UPDATE' ? 'bg-warning text-dark' : '' ?>
-                                    <?= $log['tipo'] == 'DELETE' ? 'bg-danger' : '' ?>">
-
-                                        <?= htmlspecialchars($log['tipo']) ?>
-                                    </span>
-                                </td>
-
-                                <td><?= htmlspecialchars($log['acao']) ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-
-                    </tbody>
-                </table>
-
+            <?php if (!empty($p['observacoes'])): ?>
+                <hr>
+                <strong>Observações:</strong>
+                <p><?= nl2br(htmlspecialchars($p['observacoes'])) ?></p>
             <?php endif; ?>
 
         </div>
     </div>
 
-    <?php
-    // 🔍 Verificar ficha inclusão
-    $stmt = $pdo->prepare("SELECT id FROM ficha_inclusao WHERE participante_id = ?");
-    $stmt->execute([$participante['id']]);
-    $temFichaInclusao = $stmt->fetch();
-
-    // 🔍 Verificar ficha final
-    $stmt = $pdo->prepare("SELECT id FROM ficha_avaliacao_final WHERE participante_id = ?");
-    $stmt->execute([$participante['id']]);
-    $temFichaFinal = $stmt->fetch();
-    ?>
-
-    <div class="card mt-3">
+    <!-- 🔘 AÇÕES -->
+    <div class="card shadow">
         <div class="card-body">
 
-            <h5 class="mb-3">📋 Fichas do Participante</h5>
+            <h5 class="mb-3">Ações</h5>
 
-            <!-- Ficha Inclusão -->
-            <?php if ($temFichaInclusao): ?>
-                <a href="participante_fichas.php?id=<?= $participante['id'] ?>"
-                    class="btn btn-outline-primary me-2">
-                    Ver Ficha de Inclusão
-                </a>
+            <div class="d-flex gap-2 flex-wrap">
 
-                <a href="ficha_inclusao.php?id=<?= $participante['id'] ?>"
-                    class="btn btn-primary me-2">
-                    Editar Inclusão
-                </a>
-            <?php else: ?>
-                <a href="ficha_inclusao.php?id=<?= $participante['id'] ?>"
-                    class="btn btn-success me-2">
-                    + Preencher Ficha de Inclusão
-                </a>
-            <?php endif; ?>
-
-
-            <!-- Ficha Final -->
-            <?php if ($temFichaInclusao): ?>
-
-                <?php if ($temFichaFinal): ?>
-                    <a href="participante_fichas.php?id=<?= $participante['id'] ?>"
-                        class="btn btn-outline-dark me-2">
-                        Ver Ficha Final
-                    </a>
-
-                    <a href="ficha_final.php?id=<?= $participante['id'] ?>"
-                        class="btn btn-dark">
-                        Editar Ficha Final
+                <!-- FICHA INCLUSÃO -->
+                <?php if (!$inclusao): ?>
+                    <a href="ficha_inclusao.php?participante_id=<?= $p['id'] ?>"
+                        class="btn btn-primary">
+                        ➕ Preencher Ficha de Inclusão
                     </a>
                 <?php else: ?>
-                    <a href="ficha_final.php?id=<?= $participante['id'] ?>"
-                        class="btn btn-warning">
-                        + Preencher Ficha Final
+                    <a href="ficha_inclusao_ver.php?participante_id=<?= $p['id'] ?>"
+                        class="btn btn-outline-primary">
+                        👁 Ver Ficha de Inclusão
                     </a>
                 <?php endif; ?>
 
-            <?php else: ?>
-                <button class="btn btn-secondary" disabled>
-                    Ficha Final (preencha a inclusão primeiro)
-                </button>
-            <?php endif; ?>
+                <!-- FICHA FINAL -->
+                <?php if (!$inclusao): ?>
+                    <button class="btn btn-secondary" disabled>
+                        ⚠ Preencha a inclusão primeiro
+                    </button>
+                <?php elseif (!$final): ?>
+                    <a href="ficha_final_form.php?participante_id=<?= $p['id'] ?>"
+                        class="btn btn-dark">
+                        📝 Preencher Ficha Final
+                    </a>
+                <?php else: ?>
+                    <a href="ficha_final_ver.php?participante_id=<?= $p['id'] ?>"
+                        class="btn btn-outline-dark">
+                        👁 Ver Ficha Final
+                    </a>
+                <?php endif; ?>
+
+            </div>
 
         </div>
     </div>
 
-    <hr>
-
-    <a href="relatorio_participantes.php?id=<?= $participante['id'] ?>"
-        class="btn btn-danger"
-        target="_blank">
-        Gerar PDF
-    </a>
-
-    <a href="participantes_lista.php" class="btn btn-secondary">
-        Voltar
+    <a href="participantes_lista.php" class="btn btn-secondary mt-3">
+        ← Voltar
     </a>
 
 </div>

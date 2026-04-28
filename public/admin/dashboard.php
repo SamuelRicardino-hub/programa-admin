@@ -12,7 +12,7 @@ canAny(['admin','atendente']);
 $totalUsuarios = $pdo->query("SELECT COUNT(*) FROM usuarios")->fetchColumn();
 $totalParticipantes = $pdo->query("SELECT COUNT(*) FROM participantes")->fetchColumn();
 $totalTurmas = $pdo->query("SELECT COUNT(*) FROM turmas")->fetchColumn();
-$totalPre = $pdo->query("SELECT COUNT(*) FROM pre_cadastros WHERE status = 'pendente'")->fetchColumn();
+
 
 // 🆕 CASOS
 $totalCasos = $pdo->query("SELECT COUNT(*) FROM casos")->fetchColumn();
@@ -36,20 +36,8 @@ $semFicha = $pdo->query("
     FROM participantes p
     LEFT JOIN ficha_inclusao fi ON fi.participante_id = p.id
     LEFT JOIN ficha_avaliacao_final ff ON ff.participante_id = p.id
-    WHERE 
-        (p.tipo = 'vitima' AND fi.id IS NULL)
-        OR (p.tipo = 'autor' AND ff.id IS NULL)
 ")->fetchColumn();
 
-// ==============================
-// 📋 ÚLTIMOS PRÉ-CADASTROS
-// ==============================
-$recentes = $pdo->query("
-    SELECT nome, criado_em
-    FROM pre_cadastros
-    ORDER BY criado_em DESC
-    LIMIT 5
-");
 
 // ==============================
 // 📅 ÚLTIMAS SESSÕES
@@ -118,14 +106,6 @@ $turmas = $pdo->query("
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="card shadow-sm text-center bg-warning bg-opacity-10">
-            <div class="card-body">
-                <h6 class="text-muted">Pré-Cadastros</h6>
-                <h3 class="text-warning"><?= $totalPre ?></h3>
-            </div>
-        </div>
-    </div>
 
 </div>
 
@@ -182,10 +162,6 @@ $turmas = $pdo->query("
     </div>
 
     <div class="col-md-2">
-        <a href="pre_cadastros.php" class="btn btn-warning w-100">📋 Pré-Cadastros</a>
-    </div>
-
-    <div class="col-md-2">
         <a href="participantes_lista.php" class="btn btn-dark w-100">👥 Participantes</a>
     </div>
 
@@ -207,30 +183,6 @@ $turmas = $pdo->query("
 <!-- 📋 ÚLTIMOS DADOS -->
 <!-- ============================== -->
 <div class="row mt-4">
-
-    <!-- PRÉ-CADASTROS -->
-    <div class="col-md-6">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h5>Últimos Pré-Cadastros</h5>
-
-                <table class="table table-sm">
-                    <tr>
-                        <th>Nome</th>
-                        <th>Data</th>
-                    </tr>
-
-                    <?php foreach ($recentes as $r): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($r['nome']) ?></td>
-                            <td><?= date('d/m/Y', strtotime($r['criado_em'])) ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-
-                </table>
-            </div>
-        </div>
-    </div>
 
     <!-- SESSÕES -->
     <div class="col-md-6">

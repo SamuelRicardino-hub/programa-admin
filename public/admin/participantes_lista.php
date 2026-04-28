@@ -12,10 +12,9 @@ $busca    = $_GET['busca'] ?? null;
 $sql = "
     SELECT p.id,
      p.nome,
-     p.cpf,
-     p.data_nascimento,
-     p.email,
+     p.numero_processo,
      p.total_passagens,
+     p.observacoes,
      t.nome AS turma
     FROM participantes p
     JOIN turmas t ON t.id = p.turma_id
@@ -96,10 +95,9 @@ if ($turma_id) {
                 <thead class="table-dark">
                     <tr>
                         <th>Nome</th>
-                        <th>CPF</th>
-                        <th>Idade</th>
-                        <th>email</th>
+                        <th>Número do Processo</th>
                         <th>Passagens</th>
+                        <th>Observações</th>
                         <th>Turma</th>
                         <th class="text-center">Ações</th>
                     </tr>
@@ -108,12 +106,11 @@ if ($turma_id) {
                     <?php foreach ($participantes as $p): ?>
                         <tr>
                             <td><?= htmlspecialchars($p['nome']) ?></td>
-                            <td><?= htmlspecialchars($p['cpf']) ?></td>
-                            <td><?= calcularIdade($p['data_nascimento']) ?> anos</td>
-                            <td><?= htmlspecialchars($p['email']) ?></td>
+                            <td><?= htmlspecialchars($p['numero_processo']) ?></td>
                             <td><span class="badge bg-primary">
                                     <?= $p['total_passagens'] ?? 0 ?>
                                 </span></td>
+                            <td><?= htmlspecialchars($p['observacoes']) ?></td>    
                             <td><?= htmlspecialchars($p['turma']) ?></td>
                             <td class="text-center">
 
@@ -127,12 +124,7 @@ if ($turma_id) {
                                     onclick="return confirm('Deseja excluir este participante?')">
                                     Excluir
                                 </a>
-
-                                <a href="participante_fichas.php?id=<?= $p['id'] ?>"
-                                    class="btn btn-sm btn-info">
-                                    Ficha
-                                </a>
-
+                    
                                 <a href="participantes_detalhes.php?id=<?= $p['id'] ?>" class="btn btn-sm btn-info">
                                     Ver
                                 </a>
