@@ -5,191 +5,161 @@ require_once __DIR__ . '/../../config/auth.php';
 auth();
 
 $participante_id = $_GET['participante_id'] ?? null;
+if (!$participante_id) die("Participante não informado");
 
-if (!$participante_id) {
-    die("Participante não informado");
-}
-
-// Buscar participante + número do processo da ficha inclusão
-$stmt = $pdo->prepare("
-    SELECT p.nome, fi.numero_processo
-    FROM participantes p
-    LEFT JOIN ficha_inclusao fi ON fi.participante_id = p.id
-    WHERE p.id = ?
-");
+// Participante
+$stmt = $pdo->prepare("SELECT nome FROM participantes WHERE id = ?");
 $stmt->execute([$participante_id]);
 $p = $stmt->fetch();
 
-if (!$p) {
-    die("Participante não encontrado");
-}
+if (!$p) die("Participante não encontrado");
 
-// Buscar ficha final
+// Ficha
 $stmt = $pdo->prepare("SELECT * FROM ficha_avaliacao_final WHERE participante_id = ?");
 $stmt->execute([$participante_id]);
 $f = $stmt->fetch();
 
-if (!$f) {
-    die("Ficha final não encontrada");
-}
+if (!$f) die("Ficha final não encontrada");
 
-// Função segura
-function campo($f, $c) {
+function campo($f, $c)
+{
     return !empty($f[$c]) ? htmlspecialchars($f[$c]) : '-';
 }
 ?>
 
 <!DOCTYPE html>
 <html>
+
 <head>
-<meta charset="utf-8">
-<title>Ficha Final</title>
+    <meta charset="utf-8">
+    <title>Ficha Final</title>
 
-<style>
-body {
-    font-family: Arial, sans-serif;
-    margin: 40px;
-}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-.section {
-    margin-top: 25px;
-    border: 1px solid #ccc;
-    padding: 15px;
-    border-radius: 6px;
-}
+    <style>
+        body {
+            background: #f5f6fa;
+        }
 
-.label {
-    font-weight: bold;
-}
+        .card {
+            border-radius: 12px;
+        }
 
-/* BOTÕES */
-.top-bar {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-}
+        .header-doc {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
 
-.btn {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    text-decoration: none;
-}
+        .header-center {
+            text-align: center;
+            flex: 1;
+        }
 
-.btn-print {
-    background: #0d6efd;
-    color: #fff;
-}
+        .logo {
+            height: 70px;
+        }
 
-.btn-print:hover {
-    background: #0b5ed7;
-}
+        .section-title {
+            font-weight: bold;
+            border-bottom: 2px solid #ddd;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+        }
 
-.btn-back {
-    background: #6c757d;
-    color: #fff;
-}
+        .label {
+            font-weight: bold;
+        }
 
-.btn-back:hover {
-    background: #5c636a;
-}
-
-/* impressão */
-@media print {
-    .top-bar {
-        display: none;
-    }
-}
-</style>
+        @media print {
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-<!-- BOTÕES -->
-<div class="top-bar">
+    <div class="container mt-4">
 
-    <a href="participantes_detalhes.php?id=<?= $participante_id ?>" class="btn btn-back">
-        ← Voltar
-    </a>
+        <!-- BOTÕES -->
+        <div class="mb-3 no-print d-flex gap-2">
+            <a href="participantes_detalhes.php?id=<?= $participante_id ?>" class="btn btn-secondary">
+                ← Voltar
+            </a>
 
-    <button onclick="window.print()" class="btn btn-print">
-        🖨 Imprimir / Salvar PDF
-    </button>
+            <a href="ficha_final_editar.php?id=<?= $participante_id ?>" class="btn btn-warning">
+                Editar Ficha Final
+            </a>
 
-</div>
+            <a href="ficha_final_pdf.php?participante_id=<?= $participante_id ?>" class="btn btn-danger">
+                📄 Gerar PDF
+            </a>
+        </div>
 
-<!-- CABEÇALHO -->
-<div style="display:flex; align-items:center; margin-bottom:20px;">
+        <div class="card shadow">
+            <div class="card-body">
 
-    <div style="width:120px;">
-        <img src="../../assets/LogoPrefeitura.png" style="height:70px;">
+                <!-- CABEÇALHO -->
+                <div class="header-doc mb-3">
+
+                    <img src="../../assets/LogoPrefeitura.png" height="100">
+
+                    <div class="header-center">
+                        <div><strong>Estado do Rio de Janeiro</strong></div>
+                        <div><strong>Prefeitura Municipal de Paracambi</strong></div>
+                        <div><strong>Secretaria Municipal de Proteção e Política para a Mulher</strong></div>
+                        <div><strong>Projeto S.E.R. – Grupo Reflexivo para Homens</strong></div>
+                    </div>
+
+                    <img src="../../assets/ProjetoSER.jpg" height="100">
+
+                </div>
+
+                <hr>
+
+                <p><strong>Participante:</strong> <?= htmlspecialchars($p['nome']) ?></p>
+
+                <!-- AVALIAÇÃO -->
+                <div class="section-title">Avaliação</div>
+
+                <p><span class="label">Sentimento ao denunciar:</span> <?= campo($f, 'sentimento_denuncia') ?></p>
+                <p><span class="label">Denúncia justa:</span> <?= campo($f, 'acha_justa') ?></p>
+                <p><span class="label">Motivo:</span> <?= campo($f, 'motivo_denuncia') ?></p>
+
+                <p><span class="label">Dificuldade para participar:</span> <?= campo($f, 'dificuldade_participar') ?></p>
+                <p><span class="label">Motivo da dificuldade:</span> <?= campo($f, 'motivo_dificuldade') ?></p>
+
+                <p><span class="label">Avaliação da participação:</span> <?= campo($f, 'avaliacao_participacao') ?></p>
+
+                <!-- RESULTADOS -->
+                <div class="section-title">Resultados</div>
+
+                <p><span class="label">Pontos positivos:</span> <?= campo($f, 'pontos_positivos') ?></p>
+                <p><span class="label">Pontos negativos:</span> <?= campo($f, 'pontos_negativos') ?></p>
+                <p><span class="label">Temas importantes:</span> <?= campo($f, 'temas_importantes') ?></p>
+
+                <!-- CONCLUSÃO -->
+                <div class="section-title">Conclusão</div>
+
+                <p><span class="label">Houve mudança:</span> <?= campo($f, 'houve_mudanca') ?></p>
+                <p><span class="label">Descrição da mudança:</span> <?= campo($f, 'descricao_mudanca') ?></p>
+
+                <p><span class="label">Gostou do grupo:</span> <?= campo($f, 'gostou_grupo') ?></p>
+                <p><span class="label">Como saiu do grupo:</span> <?= campo($f, 'como_saiu') ?></p>
+
+                <p><span class="label">Recomendaria:</span> <?= campo($f, 'recomendaria') ?></p>
+                <p><span class="label">Motivo da recomendação:</span> <?= campo($f, 'motivo_recomendacao') ?></p>
+
+                <p><span class="label">Sugestões:</span> <?= campo($f, 'sugestoes') ?></p>
+
+            </div>
+        </div>
+
     </div>
-
-    <div style="flex:1; text-align:center;">
-        <div style="font-size:16px; font-weight:bold;">
-            Estado do Rio de Janeiro
-        </div>
-        <div style="font-size:16px; font-weight:bold;">
-            Prefeitura Municipal de Paracambi
-        </div>
-        <div style="font-size:15px;">
-            Secretaria Municipal de Proteção e Política para a Mulher
-        </div>
-        <div style="font-size:15px; font-weight:bold;">
-            Projeto S.E.R. – Grupo Reflexivo para Homens
-        </div>
-    </div>
-
-    <div style="width:120px; text-align:right;">
-        <img src="../../assets/ProjetoSER.jpg" style="height:70px;">
-    </div>
-
-</div>
-
-<hr>
-
-<!-- DADOS -->
-<p><strong>Participante:</strong> <?= htmlspecialchars($p['nome']) ?></p>
-<p><strong>Nº Processo:</strong> <?= htmlspecialchars($p['numero_processo'] ?? '-') ?></p>
-
-<!-- AVALIAÇÃO -->
-<div class="section">
-<h4>Avaliação</h4>
-
-<p><span class="label">Sentimento:</span> <?= campo($f,'sentimento_denuncia') ?></p>
-<p><span class="label">Denúncia justa:</span> <?= campo($f,'acha_justa') ?></p>
-<p><span class="label">Motivo:</span> <?= campo($f,'motivo_denuncia') ?></p>
-
-<p><span class="label">Dificuldade:</span> <?= campo($f,'dificuldade_participar') ?></p>
-<p><span class="label">Motivo dificuldade:</span> <?= campo($f,'motivo_dificuldade') ?></p>
-
-<p><span class="label">Avaliação participação:</span> <?= campo($f,'avaliacao_participacao') ?></p>
-</div>
-
-<!-- RESULTADOS -->
-<div class="section">
-<h4>Resultados</h4>
-
-<p><span class="label">Pontos positivos:</span> <?= campo($f,'pontos_positivos') ?></p>
-<p><span class="label">Pontos negativos:</span> <?= campo($f,'pontos_negativos') ?></p>
-<p><span class="label">Temas importantes:</span> <?= campo($f,'temas_importantes') ?></p>
-</div>
-
-<!-- CONCLUSÃO -->
-<div class="section">
-<h4>Conclusão</h4>
-
-<p><span class="label">Houve mudança:</span> <?= campo($f,'houve_mudanca') ?></p>
-<p><span class="label">Descrição:</span> <?= campo($f,'descricao_mudanca') ?></p>
-
-<p><span class="label">Gostou do grupo:</span> <?= campo($f,'gostou_grupo') ?></p>
-<p><span class="label">Recomendaria:</span> <?= campo($f,'recomendaria') ?></p>
-<p><span class="label">Motivo:</span> <?= campo($f,'motivo_recomendacao') ?></p>
-
-<p><span class="label">Sugestões:</span> <?= campo($f,'sugestoes') ?></p>
-</div>
 
 </body>
+
 </html>

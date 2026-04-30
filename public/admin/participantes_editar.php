@@ -1,140 +1,73 @@
 <?php
 require_once __DIR__ . "/../../config/conexao.php";
+require_once __DIR__ . "/../../config/auth.php";
 require_once __DIR__ . "/../../layout/admin_header.php";
-require_once __DIR__ . '/../../config/auth.php';
 
 auth();
 canAny(['admin', 'atendente']);
 
-$turma_id = $_GET['turma_id'] ?? null;
-
-$titulo = "Editar Participante";
-
 $id = $_GET['id'] ?? null;
-
 if (!$id) {
     header("Location: participantes_lista.php");
     exit;
 }
 
-$sql = $pdo->prepare("
-    SELECT id, nome, cpf, data_nascimento, email, total_passagens, endereco, bairro, telefone, turma_id
-    FROM participantes
-    WHERE id = :id
-");
-$sql->bindParam(':id', $id, PDO::PARAM_INT);
-$sql->execute();
+// BUSCA OS DADOS DO PARTICIPANTE
+$stmt = $pdo->prepare("SELECT id, nome, numero_processo, observacoes FROM participantes WHERE id = ?");
+$stmt->execute([$id]);
+$p = $stmt->fetch(PDO::FETCH_ASSOC);
 
-$participante = $sql->fetch(PDO::FETCH_ASSOC);
-
-if (!$participante) {
-    header("Location: participantes_lista.php");
-    exit;
+if (!$p) {
+    die("Participante não encontrado.");
 }
-
-$turmas = $pdo->query("SELECT id, nome FROM turmas ORDER BY nome")->fetchAll();
 ?>
 
-<div class="card shadow p-4">
-
-    <h3 class="mb-4">Editar Participante</h3>
-
-    <form action="participantes_atualizar.php" method="post">
-
-        <input type="hidden" name="turma_id" value="<?= $turma_id ?>">
-        <input type="hidden" name="id" value="<?= $participante['id'] ?>">
-
-        <div class="mb-3">
-            <label class="form-label">Nome</label>
-            <input type="text"
-                name="nome"
-                class="form-control"
-                value="<?= htmlspecialchars($participante['nome']) ?>"
-                required>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-0">📝 Editar Participante</h3>
+            <p class="text-muted">ID: #<?= $p['id'] ?></p>
         </div>
-        <div class="mb-3">
-            <label class="form-label">CPF</label>
-            <input type="text"
-                name="cpf"
-                class="form-control"
-                value="<?= htmlspecialchars($participante['cpf']) ?>"
-                required>
+        <a href="participantes_detalhes.php?id=<?= $p['id'] ?>" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+            <form action="participantes_salvar.php" method="POST">
+                <input type="hidden" name="id" value="<?= $p['id'] ?>">
+
+                <div class="row">
+                    <div class="col-md-8 mb-3">
+                        <label class="form-label fw-bold">Nome Completo</label>
+                        <input type="text" name="nome" class="form-control form-control-lg" 
+                               value="<?= htmlspecialchars($p['nome']) ?>" required>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Número do Caso / Processo</label>
+                        <input type="text" name="numero_processo" class="form-control form-control-lg" 
+                               value="<?= htmlspecialchars($p['numero_processo'] ?? '') ?>" required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Observações Gerais</label>
+                    <textarea name="observacoes" class="form-control" rows="5" 
+                              placeholder="Anote aqui informações relevantes sobre o encaminhamento ou histórico..."><?= htmlspecialchars($p['observacoes'] ?? '') ?></textarea>
+                </div>
+
+                <hr>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-success btn-lg px-5">
+                        <i class="bi bi-check-circle me-2"></i> Salvar Alterações
+                    </button>
+                </div>
+            </form>
         </div>
-
-        <div class="mb-3">
-            <label class="form-label">Data de Nascimento</label>
-            <input type="date"
-                name="data_nascimento"
-                class="form-control"
-                value="<?= htmlspecialchars($participante['data_nascimento']) ?>"
-                required>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Email</label>
-            <input type="email"
-                name="email"
-                class="form-control"
-                value="<?= htmlspecialchars($participante['email']) ?>"
-                required>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Quantidade de vezes no programa</label>
-            <input type="number" name="total_passagens" class="form-control"
-                value="<?= $p['total_passagens'] ?? 0 ?>" min="0">
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Endereco</label>
-            <input type="text"
-                name="endereco"
-                class="form-control"
-                value="<?= htmlspecialchars($participante['endereco']) ?>"
-                required>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Bairro</label>
-            <input type="text"
-                name="bairro"
-                class="form-control"
-                value="<?= htmlspecialchars($participante['bairro']) ?>"
-                required>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Telefone</label>
-            <input type="text"
-                name="telefone"
-                class="form-control"
-                value="<?= htmlspecialchars($participante['telefone']) ?>">
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Turma</label>
-            <select name="turma_id" class="form-select" required>
-                <?php foreach ($turmas as $t): ?>
-                    <option value="<?= $t['id'] ?>"
-                        <?= $t['id'] == $participante['turma_id'] ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($t['nome']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-
-        <div class="d-flex justify-content-between">
-            <a href="participantes_lista.php?turma_id=<?= $turma_id ?>" class="btn btn-secondary">
-                Voltar
-            </a>
-
-            <button type="submit" class="btn btn-success">
-                Salvar Alterações
-            </button>
-        </div>
-
-    </form>
-
+    </div>
 </div>
 
-<?php require_once __DIR__ . '/../../layout/admin_footer.php'; ?>
+<?php require_once __DIR__ . "/../../layout/admin_footer.php"; ?>

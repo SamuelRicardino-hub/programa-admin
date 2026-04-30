@@ -35,7 +35,6 @@ $dados = [
     tratar($_POST['houve_mudanca']),
     tratar($_POST['descricao_mudanca']),
     tratar($_POST['gostou_grupo']),
-    tratar($_POST['sentimento_inicio']),
     tratar($_POST['recomendaria']),
     tratar($_POST['motivo_recomendacao']),
     tratar($_POST['sugestoes']),
@@ -62,7 +61,6 @@ if ($stmt->fetch()) {
         houve_mudanca = ?,
         descricao_mudanca = ?,
         gostou_grupo = ?,
-        sentimento_inicio = ?,
         recomendaria = ?,
         motivo_recomendacao = ?,
         sugestoes = ?
@@ -84,12 +82,11 @@ if ($stmt->fetch()) {
         houve_mudanca,
         descricao_mudanca,
         gostou_grupo,
-        sentimento_inicio,
         recomendaria,
         motivo_recomendacao,
         sugestoes,
         participante_id
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 }
 

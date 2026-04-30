@@ -7,18 +7,11 @@ auth();
 canAny(['admin','atendente']);
 
 // ==============================
-// 📊 MÉTRICAS PRINCIPAIS
+// 📊 MÉTRICAS PRINCIPAIS (Sem Casos)
 // ==============================
 $totalUsuarios = $pdo->query("SELECT COUNT(*) FROM usuarios")->fetchColumn();
 $totalParticipantes = $pdo->query("SELECT COUNT(*) FROM participantes")->fetchColumn();
 $totalTurmas = $pdo->query("SELECT COUNT(*) FROM turmas")->fetchColumn();
-
-
-// 🆕 CASOS
-$totalCasos = $pdo->query("SELECT COUNT(*) FROM casos")->fetchColumn();
-$casosAtivos = $pdo->query("SELECT COUNT(*) FROM casos WHERE status = 'ativo'")->fetchColumn();
-
-// 🆕 SESSÕES
 $totalSessoes = $pdo->query("SELECT COUNT(*) FROM turmas_sessoes")->fetchColumn();
 
 // 🆕 PRESENÇA MÉDIA
@@ -28,19 +21,18 @@ $presencaMedia = $pdo->query("
             (SUM(CASE WHEN status = 'presente' THEN 1 ELSE 0 END) / COUNT(*)) * 100
         ,1)
     FROM presencas
-")->fetchColumn();
+")->fetchColumn() ?: 0;
 
-// 🆕 ALERTA: SEM FICHA
+// 🆕 ALERTA: SEM FICHA DE INCLUSÃO (Pendências)
 $semFicha = $pdo->query("
     SELECT COUNT(*) 
     FROM participantes p
     LEFT JOIN ficha_inclusao fi ON fi.participante_id = p.id
-    LEFT JOIN ficha_avaliacao_final ff ON ff.participante_id = p.id
+    WHERE fi.id IS NULL
 ")->fetchColumn();
 
-
 // ==============================
-// 📅 ÚLTIMAS SESSÕES
+// 📅 ÚLTIMAS SESSÕES REALIZADAS
 // ==============================
 $sessoes = $pdo->query("
     SELECT ts.data, t.nome AS turma
@@ -64,175 +56,161 @@ $turmas = $pdo->query("
 ");
 ?>
 
-<h2 class="mb-4">Área Administrativa</h2>
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0">Painel de Controle</h2>
+            <p class="text-muted">Bem-vindo, <strong><?= htmlspecialchars($_SESSION['usuario']['nome']) ?></strong> (<?= ucfirst($_SESSION['usuario']['nivel']) ?>)</p>
+        </div>
+        <div class="text-end">
+            <span class="badge bg-primary px-3 py-2"><?= date('d/m/Y') ?></span>
+        </div>
+    </div>
 
-<p>
-    Bem-vindo, <strong><?= htmlspecialchars($_SESSION['usuario']['nome']) ?></strong>
-</p>
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm border-start border-primary border-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between px-md-1">
+                        <div>
+                            <h3 class="text-primary"><?= $totalParticipantes ?></h3>
+                            <p class="mb-0">Participantes</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-people-fill text-primary fs-1 opacity-25"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-<p class="text-muted">
-    Nível: <?= ucfirst($_SESSION['usuario']['nivel']) ?>
-</p>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm border-start border-success border-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between px-md-1">
+                        <div>
+                            <h3 class="text-success"><?= $totalTurmas ?></h3>
+                            <p class="mb-0">Turmas Ativas</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-book-fill text-success fs-1 opacity-25"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-<!-- ============================== -->
-<!-- 📊 CARDS PRINCIPAIS -->
-<!-- ============================== -->
-<div class="row g-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm border-start border-info border-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between px-md-1">
+                        <div>
+                            <h3 class="text-info"><?= $presencaMedia ?>%</h3>
+                            <p class="mb-0">Presença Média</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-graph-up-arrow text-info fs-1 opacity-25"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <div class="col-md-3">
-        <div class="card shadow-sm text-center">
-            <div class="card-body">
-                <h6 class="text-muted">Participantes</h6>
-                <h3><?= $totalParticipantes ?></h3>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm border-start border-danger border-4 bg-danger bg-opacity-10">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between px-md-1">
+                        <div>
+                            <h3 class="text-danger"><?= $semFicha ?></h3>
+                            <p class="mb-0">Sem Ficha Inclusão</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-exclamation-triangle-fill text-danger fs-1 opacity-25"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="card shadow-sm text-center">
-            <div class="card-body">
-                <h6 class="text-muted">Casos Ativos</h6>
-                <h3><?= $casosAtivos ?></h3>
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body bg-light rounded">
+            <h6 class="mb-3 text-muted fw-bold">AÇÕES RÁPIDAS</h6>
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="participantes_novo.php" class="btn btn-primary px-4">
+                    <i class="bi bi-person-plus me-1"></i> Novo Participante
+                </a>
+                <a href="turmas_novo.php" class="btn btn-outline-primary px-4">
+                    <i class="bi bi-plus-square me-1"></i> Nova Turma
+                </a>
+                <a href="participantes_lista.php" class="btn btn-dark px-4">
+                    <i class="bi bi-list-ul me-1"></i> Listar Participantes
+                </a>
+                <a href="sessoes_lista.php" class="btn btn-success px-4">
+                    <i class="bi bi-calendar-check me-1"></i> Ver Sessões
+                </a>
             </div>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="card shadow-sm text-center">
-            <div class="card-body">
-                <h6 class="text-muted">Sessões</h6>
-                <h3><?= $totalSessoes ?></h3>
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-clock-history me-2 text-primary"></i>Últimas Sessões</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Turma</th>
+                                    <th>Data</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($sessoes as $s): ?>
+                                    <tr>
+                                        <td class="fw-bold"><?= htmlspecialchars($s['turma']) ?></td>
+                                        <td><span class="badge bg-secondary opacity-75"><?= date('d/m/Y', strtotime($s['data'])) ?></span></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
 
-
-</div>
-
-<!-- ============================== -->
-<!-- 📊 SEGUNDA LINHA -->
-<!-- ============================== -->
-<div class="row g-4 mt-1">
-
-    <div class="col-md-3">
-        <div class="card shadow-sm text-center">
-            <div class="card-body">
-                <h6 class="text-muted">Usuários</h6>
-                <h3><?= $totalUsuarios ?></h3>
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-pie-chart me-2 text-success"></i>Participantes por Turma</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Turma</th>
+                                    <th class="text-center">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($turmas as $t): ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($t['nome']) ?></td>
+                                        <td class="text-center">
+                                            <span class="badge rounded-pill bg-primary"><?= $t['total'] ?></span>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card shadow-sm text-center">
-            <div class="card-body">
-                <h6 class="text-muted">Casos Totais</h6>
-                <h3><?= $totalCasos ?></h3>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card shadow-sm text-center">
-            <div class="card-body">
-                <h6 class="text-muted">Presença Média</h6>
-                <h3><?= $presencaMedia ?: 0 ?>%</h3>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-3">
-        <div class="card shadow-sm text-center bg-danger bg-opacity-10">
-            <div class="card-body">
-                <h6 class="text-muted">⚠️ Sem Ficha</h6>
-                <h3 class="text-danger"><?= $semFicha ?></h3>
-            </div>
-        </div>
-    </div>
-
-</div>
-
-<!-- ============================== -->
-<!-- 🔘 AÇÕES RÁPIDAS -->
-<!-- ============================== -->
-<div class="row mt-4 g-3">
-
-    <div class="col-md-2">
-        <a href="turmas_novo.php" class="btn btn-primary w-100">📚 Nova Turma</a>
-    </div>
-
-    <div class="col-md-2">
-        <a href="participantes_lista.php" class="btn btn-dark w-100">👥 Participantes</a>
-    </div>
-
-    <div class="col-md-2">
-        <a href="turmas_lista.php" class="btn btn-dark w-100">📚 Turmas</a>
-    </div>
-
-    <div class="col-md-2">
-        <a href="casos_lista.php" class="btn btn-danger w-100">⚖️ Casos</a>
-    </div>
-
-    <div class="col-md-2">
-        <a href="sessoes_lista.php" class="btn btn-success w-100">📅 Sessões</a>
-    </div>
-
-</div>
-
-<!-- ============================== -->
-<!-- 📋 ÚLTIMOS DADOS -->
-<!-- ============================== -->
-<div class="row mt-4">
-
-    <!-- SESSÕES -->
-    <div class="col-md-6">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h5>Últimas Sessões</h5>
-
-                <table class="table table-sm">
-                    <tr>
-                        <th>Turma</th>
-                        <th>Data</th>
-                    </tr>
-
-                    <?php foreach ($sessoes as $s): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($s['turma']) ?></td>
-                            <td><?= date('d/m/Y', strtotime($s['data'])) ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-
-                </table>
-            </div>
-        </div>
-    </div>
-
-</div>
-
-<!-- ============================== -->
-<!-- 📊 PARTICIPANTES POR TURMA -->
-<!-- ============================== -->
-<div class="card mt-4 shadow-sm">
-    <div class="card-body">
-
-        <h5>Participantes por Turma</h5>
-
-        <table class="table table-sm">
-            <tr>
-                <th>Turma</th>
-                <th>Total</th>
-            </tr>
-
-            <?php foreach ($turmas as $t): ?>
-                <tr>
-                    <td><?= htmlspecialchars($t['nome']) ?></td>
-                    <td><?= $t['total'] ?></td>
-                </tr>
-            <?php endforeach; ?>
-
-        </table>
-
     </div>
 </div>
 

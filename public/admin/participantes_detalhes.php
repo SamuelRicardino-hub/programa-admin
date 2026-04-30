@@ -30,7 +30,8 @@ $stmt->execute([$id]);
 $final = $stmt->fetch();
 
 // Função helper
-function campo($valor) {
+function campo($valor)
+{
     return $valor ? htmlspecialchars($valor) : '<span class="text-muted">Não informado</span>';
 }
 ?>
@@ -99,8 +100,7 @@ function campo($valor) {
                         ⚠ Preencha a inclusão primeiro
                     </button>
                 <?php elseif (!$final): ?>
-                    <a href="ficha_final_form.php?participante_id=<?= $p['id'] ?>"
-                        class="btn btn-dark">
+                    <a href="ficha_final.php?id=<?= $p['id'] ?>" class="btn btn-dark">
                         📝 Preencher Ficha Final
                     </a>
                 <?php else: ?>

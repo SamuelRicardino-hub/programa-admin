@@ -1,174 +1,89 @@
 <?php
 require_once __DIR__ . '/../../config/conexao.php';
 require_once __DIR__ . '/../../config/auth.php';
-require_once __DIR__ . '/../../lib/fpdf/fpdf.php';
+require_once __DIR__ . '/../../lib/tfpdf/tfpdf.php';
 
 auth();
-canAny(['admin', 'atendente']);
 
-function txt($t) {
-    return utf8_decode($t ?? '');
-}
-
-// ==============================
-// 📄 PDF
-// ==============================
-class PDF extends FPDF {
-
-    function Header() {
-
-        $logo = __DIR__ . '/../../assets/logo.png';
-
-        if (file_exists($logo)) {
-            $this->Image($logo, 10, 8, 25);
-        }
-
-        $this->SetFont('Arial', 'B', 14);
-        $this->Cell(0, 10, txt('PREFEITURA MUNICIPAL'), 0, 1, 'C');
-
-        $this->SetFont('Arial', '', 11);
-        $this->Cell(0, 6, txt('Secretaria de Assistência Social'), 0, 1, 'C');
-
-        $this->Ln(5);
-    }
-
-    function Footer() {
-        $this->SetY(-15);
-        $this->SetFont('Arial', '', 9);
-
-        $this->Cell(0, 5, txt('Emitido em: ') . date('d/m/Y H:i'), 0, 0, 'L');
-        $this->Cell(0, 5, txt('Página ') . $this->PageNo(), 0, 0, 'R');
-    }
-}
-
-// ==============================
-// 📥 DADOS
-// ==============================
 $caso_id = $_GET['id'] ?? null;
-
 if (!$caso_id) die("Caso não informado");
 
-// Caso
-$stmt = $pdo->prepare("SELECT * FROM casos WHERE id = ?");
-$stmt->execute([$caso_id]);
-$caso = $stmt->fetch();
-
-// Participantes
+// PARTICIPANTE
 $stmt = $pdo->prepare("SELECT * FROM participantes WHERE caso_id = ?");
 $stmt->execute([$caso_id]);
-$participantes = $stmt->fetchAll();
+$p = $stmt->fetch();
 
-$vitima = null;
-$autor = null;
+// FICHAS
+$stmt = $pdo->prepare("SELECT * FROM ficha_inclusao WHERE participante_id = ?");
+$stmt->execute([$p['id']]);
+$inc = $stmt->fetch();
 
-foreach ($participantes as $p) {
-    if ($p['tipo'] == 'vitima') $vitima = $p;
-    if ($p['tipo'] == 'autor') $autor = $p;
-}
+$stmt = $pdo->prepare("SELECT * FROM ficha_avaliacao_final WHERE participante_id = ?");
+$stmt->execute([$p['id']]);
+$final = $stmt->fetch();
 
-// Fichas (com validação)
-$fichaInclusao = null;
-$fichaFinal = null;
-
-if ($vitima) {
-    $stmt = $pdo->prepare("SELECT * FROM ficha_inclusao WHERE participante_id = ?");
-    $stmt->execute([$vitima['id']]);
-    $fichaInclusao = $stmt->fetch();
-}
-
-if ($autor) {
-    $stmt = $pdo->prepare("SELECT * FROM ficha_avaliacao_final WHERE participante_id = ?");
-    $stmt->execute([$autor['id']]);
-    $fichaFinal = $stmt->fetch();
-}
-
-// ==============================
-// 🖨️ PDF
-// ==============================
-$pdf = new PDF();
-$pdf->SetAutoPageBreak(true, 15);
+// PDF
+$pdf = new tFPDF();
 $pdf->AddPage();
 
-// ==============================
-// 🏷️ TÍTULO
-// ==============================
-$pdf->SetFont('Arial', 'B', 15);
-$pdf->Cell(0, 10, txt("RELATÓRIO DE CASO Nº $caso_id"), 0, 1, 'C');
+// FONTES
+$pdf->AddFont('DejaVu','','DejaVuSans.ttf', true);
+$pdf->AddFont('DejaVu','B','DejaVuSans-Bold.ttf', true);
+
+// HEADER
+$pdf->Image(__DIR__.'/../../assets/LogoPrefeitura.png', 10, 8, 20);
+$pdf->Image(__DIR__.'/../../assets/ProjetoSER.png', 175, 8, 20);
+
+$pdf->SetFont('DejaVu','B',12);
+$pdf->Cell(0,6,'Estado do Rio de Janeiro',0,1,'C');
+$pdf->Cell(0,6,'Prefeitura Municipal de Paracambi',0,1,'C');
+
+$pdf->SetFont('DejaVu','',10);
+$pdf->Cell(0,6,'Secretaria Municipal de Proteção e Política para a Mulher',0,1,'C');
+
+$pdf->SetFont('DejaVu','B',11);
+$pdf->Cell(0,6,'Projeto S.E.R. – Grupo Reflexivo para Homens',0,1,'C');
+
+$pdf->Ln(10);
+
+// TÍTULO
+$pdf->SetFont('DejaVu','B',14);
+$pdf->Cell(0,8,"Relatório do Caso Nº $caso_id",0,1,'C');
+
 $pdf->Ln(5);
 
-// ==============================
-// 👤 VÍTIMA
-// ==============================
-if ($vitima) {
+// PARTICIPANTE
+$pdf->SetFont('DejaVu','B',12);
+$pdf->Cell(0,6,'Dados do Participante',0,1);
 
-    $pdf->SetFillColor(220, 53, 69);
-    $pdf->SetTextColor(255);
-    $pdf->SetFont('Arial', 'B', 12);
-    $pdf->Cell(0, 8, txt(' DADOS DA VÍTIMA'), 0, 1, 'L', true);
+$pdf->SetFont('DejaVu','',11);
+$pdf->Cell(0,6,"Nome: {$p['nome']}",0,1);
+$pdf->Cell(0,6,"CPF: {$p['cpf']}",0,1);
 
-    $pdf->SetTextColor(0);
-    $pdf->SetFont('Arial', '', 11);
+$pdf->Ln(5);
 
-    $pdf->Cell(0, 6, txt("Nome: {$vitima['nome']}"), 0, 1);
-    $pdf->Cell(0, 6, txt("CPF: {$vitima['cpf']}"), 0, 1);
-    $pdf->Cell(0, 6, txt("Telefone: {$vitima['telefone']}"), 0, 1);
-    $pdf->Ln(3);
+// INCLUSÃO
+if ($inc) {
+    $pdf->SetFont('DejaVu','B',12);
+    $pdf->Cell(0,6,'Ficha de Inclusão',0,1);
 
-    if ($fichaInclusao) {
-
-        $pdf->SetFont('Arial', 'B', 11);
-        $pdf->Cell(0, 6, txt('Ficha de Inclusão'), 0, 1);
-
-        $pdf->SetFont('Arial', '', 10);
-
-        $pdf->MultiCell(0, 5, txt("Situação civil: " . $fichaInclusao['situacao_civil']));
-        $pdf->MultiCell(0, 5, txt("Escolaridade: " . $fichaInclusao['escolaridade']));
-        $pdf->MultiCell(0, 5, txt("Profissão: " . $fichaInclusao['profissao']));
-        $pdf->MultiCell(0, 5, txt("Problemas de saúde: " . $fichaInclusao['problemas_saude']));
-        $pdf->MultiCell(0, 5, txt("Uso de álcool: " . $fichaInclusao['uso_alcool']));
-        $pdf->MultiCell(0, 5, txt("Drogas utilizadas: " . $fichaInclusao['drogas_utilizadas']));
-        $pdf->MultiCell(0, 5, txt("Violência sofrida: " . $fichaInclusao['violencia_sofrida']));
-    }
+    $pdf->SetFont('DejaVu','',10);
+    $pdf->MultiCell(0,5,"Escolaridade: ".$inc['escolaridade']);
+    $pdf->MultiCell(0,5,"Profissão: ".$inc['profissao']);
+    $pdf->MultiCell(0,5,"Expectativa: ".$inc['expectativa_grupo']);
 }
 
-// ==============================
-// 👤 AUTOR
-// ==============================
-if ($autor) {
-
+// FINAL
+if ($final) {
     $pdf->Ln(5);
 
-    $pdf->SetFillColor(33, 37, 41);
-    $pdf->SetTextColor(255);
-    $pdf->SetFont('Arial', 'B', 12);
-    $pdf->Cell(0, 8, txt(' DADOS DO AUTOR'), 0, 1, 'L', true);
+    $pdf->SetFont('DejaVu','B',12);
+    $pdf->Cell(0,6,'Ficha Final',0,1);
 
-    $pdf->SetTextColor(0);
-    $pdf->SetFont('Arial', '', 11);
-
-    $pdf->Cell(0, 6, txt("Nome: {$autor['nome']}"), 0, 1);
-    $pdf->Cell(0, 6, txt("CPF: {$autor['cpf']}"), 0, 1);
-    $pdf->Cell(0, 6, txt("Telefone: {$autor['telefone']}"), 0, 1);
-    $pdf->Ln(3);
-
-    if ($fichaFinal) {
-
-        $pdf->SetFont('Arial', 'B', 11);
-        $pdf->Cell(0, 6, txt('Ficha de Avaliação Final'), 0, 1);
-
-        $pdf->SetFont('Arial', '', 10);
-
-        $pdf->MultiCell(0, 5, txt("Sentimento: " . $fichaFinal['sentimento_denuncia']));
-        $pdf->MultiCell(0, 5, txt("Considera justa: " . $fichaFinal['acha_justa']));
-        $pdf->MultiCell(0, 5, txt("Houve mudança: " . $fichaFinal['houve_mudanca']));
-        $pdf->MultiCell(0, 5, txt("Descrição: " . $fichaFinal['descricao_mudanca']));
-        $pdf->MultiCell(0, 5, txt("Impacto: " . $fichaFinal['impacto_relacionamentos']));
-        $pdf->MultiCell(0, 5, txt("Recomendaria: " . $fichaFinal['recomendaria']));
-    }
+    $pdf->SetFont('DejaVu','',10);
+    $pdf->MultiCell(0,5,"Houve mudança: ".$final['houve_mudanca']);
+    $pdf->MultiCell(0,5,"Descrição: ".$final['descricao_mudanca']);
+    $pdf->MultiCell(0,5,"Recomendaria: ".$final['recomendaria']);
 }
 
-// ==============================
-// 📤 OUTPUT
-// ==============================
-$pdf->Output("I", "caso_$caso_id.pdf");
-exit;
+$pdf->Output();
