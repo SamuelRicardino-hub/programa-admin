@@ -6,7 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 function auth() {
     if (!isset($_SESSION['usuario'])) {
-        header("Location: /programa-admin/public/admin/login.php");
+        header("Location: /programa-admin/index");
         exit;
     }
 }

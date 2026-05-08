@@ -21,28 +21,28 @@ if (session_status() === PHP_SESSION_NONE) {
 
         <!-- Sidebar -->
         <div class="bg-dark text-white p-3" style="width: 250px; min-height: 100vh;">
-            <h5 class="mb-4">Admin</h5>
+            <h5 class="mb-4">Projeto S.E.R</h5>
 
             <ul class="nav flex-column">
                 <li class="nav-item">
-                    <a href="/programa-admin/public/admin/dashboard.php" class="nav-link text-white">Página Inicial</a>
+                    <a href="/programa-admin/public/dashboard.php" class="nav-link text-white">Página Inicial</a>
                 </li>
                 <li class="nav-item">
-                    <a href="/programa-admin/public/admin/turmas_lista.php" class="nav-link text-white">Turmas</a>
+                    <a href="/programa-admin/public/turmas_lista.php" class="nav-link text-white">Turmas</a>
                 </li>
                 <li class="nav-item">
-                    <a href="/programa-admin/public/admin/participantes_lista.php" class="nav-link text-white">Participantes</a>
+                    <a href="/programa-admin/public/participantes_lista.php" class="nav-link text-white">Participantes</a>
                 </li>
                 <li class="nav-item">
-                    <a href="/programa-admin/public/admin/usuarios_lista.php" class="nav-link text-white">Usuários</a>
+                    <a href="/programa-admin/public/usuarios_lista.php" class="nav-link text-white">Usuários</a>
                 </li>
                 <li class="nav-item">
-                    <a href="/programa-admin/public/admin/busca.php" class="nav-link text-white">Buscar</a>
+                    <a href="/programa-admin/public/busca.php" class="nav-link text-white">Buscar</a>
                 </li>
             
                 </li>
                 <li class="nav-item mt-4">
-                    <a href="/programa-admin/public/admin/logout.php" class="nav-link text-danger">Sair</a>
+                    <a href="/programa-admin/public/logout.php" class="nav-link text-danger">Sair</a>
                 </li>
             </ul>
         </div>
