@@ -14,33 +14,18 @@ if ($busca !== '') {
 
     // 🔍 PARTICIPANTES
     $sql1 = $pdo->prepare("
-        SELECT id, nome, cpf, email, 'Participante' AS tipo
+        SELECT id, nome, turma, numero_processo, 'Participante' AS tipo
         FROM participantes
         WHERE nome LIKE :busca 
-           OR cpf LIKE :busca 
-           OR email LIKE :busca
+           OR turma LIKE :busca 
+           OR numero_processo LIKE :busca
     ");
 
     $sql1->execute([':busca' => "%$busca%"]);
     $participantes = $sql1->fetchAll(PDO::FETCH_ASSOC);
 
-    // 🔍 PRÉ-CADASTROS
-    $sql2 = $pdo->prepare("
-        SELECT id, nome, cpf, email, 'Pré-cadastro' AS tipo
-        FROM pre_cadastros
-        WHERE status = 'pendente'
-        AND (
-        nome LIKE :busca 
-            OR cpf LIKE :busca 
-            OR email LIKE :busca
-)
-    ");
-
-    $sql2->execute([':busca' => "%$busca%"]);
-    $precadastros = $sql2->fetchAll(PDO::FETCH_ASSOC);
-
     // Junta tudo
-    $resultados = array_merge($participantes, $precadastros);
+    $resultados = array_merge($participantes);
 }
 ?>
 
@@ -56,8 +41,8 @@ if ($busca !== '') {
         <tr>
             <th>Tipo</th>
             <th>Nome</th>
-            <th>CPF</th>
-            <th>Email</th>
+            <th>Turma</th>
+            <th>N° do Processo</th>
             <th>Ação</th>
         </tr>
     </thead>
@@ -69,56 +54,6 @@ if ($busca !== '') {
         </tr>
     </tbody>
 </table>
-
-<div class="card">
-    <div class="card-body">
-
-        <?php if ($busca === ''): ?>
-            <p class="text-muted">Digite algo para buscar...</p>
-
-        <?php elseif (empty($resultados)): ?>
-            <p class="text-danger">Nenhum resultado encontrado.</p>
-
-        <?php else: ?>
-
-            <table class="table table-striped">
-                <tr>
-                    <th>Tipo</th>
-                    <th>Nome</th>
-                    <th>CPF</th>
-                    <th>Email</th>
-                    <th>Ação</th>
-                </tr>
-
-                <?php foreach ($resultados as $r): ?>
-                    <tr>
-                        <td><?= $r['tipo'] ?></td>
-                        <td><?= htmlspecialchars($r['nome']) ?></td>
-                        <td><?= htmlspecialchars($r['cpf']) ?></td>
-                        <td><?= htmlspecialchars($r['email']) ?></td>
-
-                        <td>
-                            <?php if ($r['tipo'] === 'Participante'): ?>
-                                <a href="participantes_editar.php?id=<?= $r['id'] ?>"
-                                    class="btn btn-sm btn-primary">
-                                    Abrir
-                                </a>
-                            <?php else: ?>
-                                <a href="pre_cadastros.php"
-                                    class="btn btn-sm btn-warning">
-                                    Ver
-                                </a>
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-
-            </table>
-
-        <?php endif; ?>
-
-    </div>
-</div>
 
 <script>
 let timeout = null;
@@ -152,7 +87,7 @@ document.getElementById('busca').addEventListener('keyup', function() {
                         let botao = '';
 
                         if (item.tipo === 'Participante') {
-                            botao = `<a href="participantes_editar.php?id=${item.id}" class="btn btn-sm btn-primary">Abrir</a>`;
+                            botao = `<a href="participantes_detalhes.php?id=${item.id}" class="btn btn-sm btn-primary">Ver</a>`;
                         } else {
                             botao = `<a href="pre_cadastros.php" class="btn btn-sm btn-warning">Ver</a>`;
                         }
@@ -161,8 +96,8 @@ document.getElementById('busca').addEventListener('keyup', function() {
                             <tr>
                                 <td>${item.tipo}</td>
                                 <td>${item.nome}</td>
-                                <td>${item.cpf ?? ''}</td>
-                                <td>${item.email ?? ''}</td>
+                                <td>${item.turma}</td>
+                                <td>${item.numero_proceso ?? ''}</td>
                                 <td>${botao}</td>
                             </tr>
                         `;

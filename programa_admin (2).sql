@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 30/04/2026 às 21:56
+-- Tempo de geração: 12/05/2026 às 21:59
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.0.30
 
@@ -225,10 +225,10 @@ CREATE TABLE `participantes` (
 --
 
 INSERT INTO `participantes` (`id`, `nome`, `numero_processo`, `cpf`, `data_nascimento`, `telefone`, `email`, `endereco`, `bairro`, `turma_id`, `observacoes`, `criado_em`, `caso_id`, `status`, `total_passagens`) VALUES
-(27, 'Joana Barcelos', NULL, '46235979489', '1995-11-25', '(21) 99872-4565', 'joanabarcelos@gmail.com', 'Rua da Esperança, 999', 'Sabugo', 3, NULL, '2026-04-07 18:00:53', 6, 'ativo', 0),
-(28, 'João Cláudio', NULL, '16529748559', '2001-06-25', '(21) 99875-2659', 'joaoclaudio@gmail.com', 'Avenida Juan Freytes, 22', 'Guarajuba', 4, NULL, '2026-04-07 18:38:00', 6, 'ativo', 0),
-(169, 'Everson Neri Fonseca', NULL, '05296440706', '1979-11-09', '21998758429', 'eversonfonseca@gmail.com', 'Avenida Jonas Leal, 769', 'Lages', 4, NULL, '2026-04-16 19:42:04', NULL, 'ativo', 0),
-(170, 'Maria Gilvânia', NULL, '52998224725', '2008-01-21', '21987546884', 'juanmatheus@email.com', 'Avenida Pedro II, 154', 'Jardim Nova Era', 3, NULL, '2026-04-16 19:42:17', NULL, 'ativo', 0);
+(27, 'Pedro Henrique', '26', '46235979489', '1995-11-25', '(21) 99872-4565', 'joanabarcelos@gmail.com', 'Rua da Esperança, 999', 'Sabugo', 3, '', '2026-04-07 18:00:53', 6, 'ativo', 1),
+(28, 'João Cláudio', '45', '16529748559', '2001-06-25', '(21) 99875-2659', 'joaoclaudio@gmail.com', 'Avenida Juan Freytes, 22', 'Guarajuba', 4, '', '2026-04-07 18:38:00', 6, 'ativo', 1),
+(169, 'Mario Junior', '15', '05296440706', '1979-11-09', '21998758429', 'eversonfonseca@gmail.com', 'Avenida Jonas Leal, 769', 'Lages', 4, '', '2026-04-16 19:42:04', NULL, 'ativo', 1),
+(170, 'Alex Lima', '22', '52998224725', '2008-01-21', '21987546884', 'juanmatheus@email.com', 'Avenida Pedro II, 154', 'Jardim Nova Era', 3, '', '2026-04-16 19:42:17', NULL, 'ativo', 1);
 
 -- --------------------------------------------------------
 
@@ -250,7 +250,11 @@ CREATE TABLE `presencas` (
 --
 
 INSERT INTO `presencas` (`id`, `sessao_id`, `participante_id`, `status`, `observacao`, `registrado_em`) VALUES
-(1, 3, 28, 'presente', '', '2026-04-09 17:47:19');
+(1, 3, 28, 'presente', '', '2026-04-09 17:47:19'),
+(7, 2, 27, 'presente', '', '2026-05-08 19:13:39'),
+(8, 2, 170, 'falta', '', '2026-05-08 19:13:39'),
+(9, 1, 27, 'presente', '', '2026-05-08 19:13:45'),
+(10, 1, 170, 'presente', '', '2026-05-08 19:13:45');
 
 -- --------------------------------------------------------
 
@@ -276,6 +280,19 @@ CREATE TABLE `turmas` (
 INSERT INTO `turmas` (`id`, `nome`, `descricao`, `responsavel`, `data_inicio`, `data_fim`, `status`, `criado_em`) VALUES
 (3, 'Turma 2', '', 'Márcia', '2026-04-15', '2026-06-15', 'ativa', '2026-03-26 17:36:51'),
 (4, 'Turma 1', '', 'Juliana', '2026-04-07', '2026-12-31', 'ativa', '2026-04-07 18:00:32');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `turmas_participantes`
+--
+
+CREATE TABLE `turmas_participantes` (
+  `id` int(11) NOT NULL,
+  `turma_id` int(11) NOT NULL,
+  `participante_id` int(11) NOT NULL,
+  `data_vinculo` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -320,9 +337,7 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id`, `nome`, `email`, `senha`, `nivel`, `criado_em`) VALUES
-(1, 'Administrador', 'admin@email.com', '$2y$10$/jPwG0Pinwrzcawe5dcz..ZeYdnLnmjpXf9dUCdZpwg.u.2mcacYq', 'admin', '2026-03-17 17:49:48'),
-(2, 'Pedrinho Games', 'pedrinho@email.com', '$2y$10$WtFyjjYIaHCmekuZI62xJeF5hDbS.1sdbBvuPWF0.Y6bjhSqIG2Z6', 'atendente', '2026-03-17 19:32:20'),
-(3, 'Samuel', 'samuel@email.com', '$2y$10$l2Sm420K4Zx1kR53DqkRdOBZ3PqU4ah7iRp05MbSZo2FSyhHakrrO', 'admin', '2026-03-17 19:34:47');
+(1, 'Administrador', 'admin@email.com', '$2y$10$/jPwG0Pinwrzcawe5dcz..ZeYdnLnmjpXf9dUCdZpwg.u.2mcacYq', 'admin', '2026-03-17 17:49:48');
 
 --
 -- Índices para tabelas despejadas
@@ -397,6 +412,14 @@ ALTER TABLE `turmas`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Índices de tabela `turmas_participantes`
+--
+ALTER TABLE `turmas_participantes`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `turma_id` (`turma_id`),
+  ADD KEY `participante_id` (`participante_id`);
+
+--
 -- Índices de tabela `turmas_sessoes`
 --
 ALTER TABLE `turmas_sessoes`
@@ -460,13 +483,19 @@ ALTER TABLE `participantes`
 -- AUTO_INCREMENT de tabela `presencas`
 --
 ALTER TABLE `presencas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de tabela `turmas`
 --
 ALTER TABLE `turmas`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT de tabela `turmas_participantes`
+--
+ALTER TABLE `turmas_participantes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de tabela `turmas_sessoes`
@@ -529,6 +558,13 @@ ALTER TABLE `participantes`
 ALTER TABLE `presencas`
   ADD CONSTRAINT `presencas_ibfk_1` FOREIGN KEY (`sessao_id`) REFERENCES `turmas_sessoes` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `presencas_ibfk_2` FOREIGN KEY (`participante_id`) REFERENCES `participantes` (`id`) ON DELETE CASCADE;
+
+--
+-- Restrições para tabelas `turmas_participantes`
+--
+ALTER TABLE `turmas_participantes`
+  ADD CONSTRAINT `turmas_participantes_ibfk_1` FOREIGN KEY (`turma_id`) REFERENCES `turmas` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `turmas_participantes_ibfk_2` FOREIGN KEY (`participante_id`) REFERENCES `participantes` (`id`) ON DELETE CASCADE;
 
 --
 -- Restrições para tabelas `turmas_sessoes`
