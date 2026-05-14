@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 12/05/2026 às 21:59
+-- Tempo de geração: 14/05/2026 às 20:41
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.0.30
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Banco de dados: `programa_admin`
+-- Banco de dados: `projetoser`
 --
 
 -- --------------------------------------------------------
@@ -97,16 +97,23 @@ CREATE TABLE `ficha_avaliacao_final` (
   `recomendaria` enum('sim','nao') DEFAULT NULL,
   `motivo_recomendacao` text DEFAULT NULL,
   `sugestoes` text DEFAULT NULL,
-  `criado_em` datetime DEFAULT current_timestamp()
+  `criado_em` datetime DEFAULT current_timestamp(),
+  `vantagens_experiencia` text DEFAULT NULL,
+  `desvantagens_experiencia` text DEFAULT NULL,
+  `mudanca_visao_mundo` varchar(50) DEFAULT NULL,
+  `relacao_grupo_pensamento` text DEFAULT NULL,
+  `impacto_mudanca_costumes` text DEFAULT NULL,
+  `mudanca_relacionamentos` text DEFAULT NULL,
+  `o_que_mais_gostou` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Despejando dados para a tabela `ficha_avaliacao_final`
 --
 
-INSERT INTO `ficha_avaliacao_final` (`id`, `participante_id`, `sentimento_denuncia`, `acha_justa`, `motivo_denuncia`, `dificuldade_participar`, `motivo_dificuldade`, `avaliacao_participacao`, `pontos_positivos`, `pontos_negativos`, `temas_importantes`, `houve_mudanca`, `descricao_mudanca`, `gostou_grupo`, `sentimento_inicio`, `recomendaria`, `motivo_recomendacao`, `sugestoes`, `criado_em`) VALUES
-(2, 28, 'medo', 'sim', '', 'nao', '', '', 'Entender qual foi meu erro e tentar melhorar', 'Ter perdido contato com minha ex mulher', 'Aprender a controlar os sentimentos', 'sim', '', NULL, NULL, 'sim', '', NULL, '2026-04-07 16:32:05'),
-(3, 169, 'tranquilo', 'sim', NULL, 'nao', NULL, 'boa', 'Porque mudou meu pensamento.', NULL, 'Autoresponsabilidade, Violencia Baseada no Genero, Saude do Homem, Paternidade', 'sim', 'Hoje eu penso de maneira totalmente diferente e pretendo mudar daqui em diante.', '', NULL, 'sim', 'Grupo muito bom, aprendi bastante', NULL, '2026-04-30 16:08:26');
+INSERT INTO `ficha_avaliacao_final` (`id`, `participante_id`, `sentimento_denuncia`, `acha_justa`, `motivo_denuncia`, `dificuldade_participar`, `motivo_dificuldade`, `avaliacao_participacao`, `pontos_positivos`, `pontos_negativos`, `temas_importantes`, `houve_mudanca`, `descricao_mudanca`, `gostou_grupo`, `sentimento_inicio`, `recomendaria`, `motivo_recomendacao`, `sugestoes`, `criado_em`, `vantagens_experiencia`, `desvantagens_experiencia`, `mudanca_visao_mundo`, `relacao_grupo_pensamento`, `impacto_mudanca_costumes`, `mudanca_relacionamentos`, `o_que_mais_gostou`) VALUES
+(2, 28, 'medo', 'sim', '', 'nao', '', '', 'Entender qual foi meu erro e tentar melhorar', 'Ter perdido contato com minha ex mulher', 'Aprender a controlar os sentimentos', 'sim', '', NULL, NULL, 'sim', '', NULL, '2026-04-07 16:32:05', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(3, 169, 'tranquilo', 'sim', NULL, 'nao', NULL, 'boa', 'Porque mudou meu pensamento.', NULL, 'Autoresponsabilidade, Violencia Baseada no Genero, Saude do Homem, Paternidade', 'sim', 'Hoje eu penso de maneira totalmente diferente e pretendo mudar daqui em diante.', '', NULL, 'sim', 'Grupo muito bom, aprendi bastante', NULL, '2026-04-30 16:08:26', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -152,16 +159,18 @@ CREATE TABLE `ficha_inclusao` (
   `renda_outro` varchar(150) DEFAULT NULL,
   `trabalho_outro` varchar(150) DEFAULT NULL,
   `moradia_outro` varchar(150) DEFAULT NULL,
-  `relacionamento_outro` varchar(150) DEFAULT NULL
+  `relacionamento_outro` varchar(150) DEFAULT NULL,
+  `nome` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Despejando dados para a tabela `ficha_inclusao`
 --
 
-INSERT INTO `ficha_inclusao` (`id`, `cor`, `situacao_civil`, `religiao`, `escolaridade`, `renda_familiar`, `profissao`, `ocupacao_companheira`, `profissao_companheira`, `condicao_moradia`, `numero_filhos`, `numero_pessoas_casa`, `problemas_saude`, `uso_medicacao`, `uso_alcool`, `frequencia_bebida`, `drogas_utilizadas`, `violencia_praticada`, `violencia_sofrida`, `historico_familiar`, `situacao_juridica`, `expectativa_grupo`, `criado_em`, `participante_id`, `numero_caso`, `numero_processo`, `parentesco`, `idade`, `naturalidade`, `relacionamento_atual`, `relacionamento_detalhe`, `trabalho`, `religiao_outro`, `escolaridade_outro`, `renda_outro`, `trabalho_outro`, `moradia_outro`, `relacionamento_outro`) VALUES
-(5, 'Preta', 'Divorciada', 'Católica', 'Ensino Superior completo', '7000', 'Diretora Escolar', NULL, NULL, 'Boa', 2, 3, 'Hipertensão', 'Remédio para pressão arterial de 12 em 12h.', 'Não', 'Nunca', 'Nenhuma', 'Defesa pessoal', 'Agressões físicas', '', 'Em julgamento', 'Superar o trauma, aprender e ajudar mais mulheres a lidar com isso.', '2026-04-07 16:24:46', 27, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(6, 'Preta', NULL, 'Católica', 'Ensino Superior', NULL, 'Inspetor Escolar', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-04-17 15:57:29', 169, '1', '1', 'Ex-marido', 46, 'Brasileiro', NULL, NULL, 'Empregado Carteira Assinada', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `ficha_inclusao` (`id`, `cor`, `situacao_civil`, `religiao`, `escolaridade`, `renda_familiar`, `profissao`, `ocupacao_companheira`, `profissao_companheira`, `condicao_moradia`, `numero_filhos`, `numero_pessoas_casa`, `problemas_saude`, `uso_medicacao`, `uso_alcool`, `frequencia_bebida`, `drogas_utilizadas`, `violencia_praticada`, `violencia_sofrida`, `historico_familiar`, `situacao_juridica`, `expectativa_grupo`, `criado_em`, `participante_id`, `numero_caso`, `numero_processo`, `parentesco`, `idade`, `naturalidade`, `relacionamento_atual`, `relacionamento_detalhe`, `trabalho`, `religiao_outro`, `escolaridade_outro`, `renda_outro`, `trabalho_outro`, `moradia_outro`, `relacionamento_outro`, `nome`) VALUES
+(5, 'Preta', 'Divorciada', 'Católica', 'Ensino Superior completo', '7000', 'Diretora Escolar', NULL, NULL, 'Boa', 2, 3, 'Hipertensão', 'Remédio para pressão arterial de 12 em 12h.', 'Não', 'Nunca', 'Nenhuma', 'Defesa pessoal', 'Agressões físicas', '', 'Em julgamento', 'Superar o trauma, aprender e ajudar mais mulheres a lidar com isso.', '2026-04-07 16:24:46', 27, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(6, 'Preta', NULL, 'Católica', 'Ensino Superior', NULL, 'Inspetor Escolar', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-04-17 15:57:29', 169, '1', '1', 'Ex-marido', 46, 'Brasileiro', NULL, NULL, 'Empregado Carteira Assinada', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(7, 'Parda', NULL, 'Sem Religião', 'Ensino Superior', 'De 1 a 2 SM', 'Operador de Máquinas Pesadas', NULL, NULL, 'Própria', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2026-05-14 14:53:30', 170, '2026-002', '22', 'Ex-marido', 45, 'Paracambi, RJ', 'Solteiro', 'Outro', 'Empregado (CLT)', '', '', '', '', '', '', 'Alex Lima');
 
 -- --------------------------------------------------------
 
@@ -465,7 +474,7 @@ ALTER TABLE `ficha_avaliacao_final`
 -- AUTO_INCREMENT de tabela `ficha_inclusao`
 --
 ALTER TABLE `ficha_inclusao`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de tabela `logs`

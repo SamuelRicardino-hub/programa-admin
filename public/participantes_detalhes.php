@@ -27,10 +27,12 @@ $inclusao = $stmt->fetch();
 
 $stmt = $pdo->prepare("SELECT id FROM ficha_avaliacao_final WHERE participante_id = ?");
 $stmt->execute([$id]);
-$final = $stmt->fetch();
+$final = $stmt->fetch(); // Aqui definimos a variável $final
+
 
 // Função helper para exibir campos vazios com elegância
-function campo($valor) {
+function campo($valor)
+{
     return $valor ? htmlspecialchars($valor) : '<span class="text-muted small italic">Não informado</span>';
 }
 ?>
@@ -62,7 +64,7 @@ function campo($valor) {
                             <label class="small text-uppercase fw-bold text-muted d-block mb-1">Nome Completo</label>
                             <span class="fs-5 fw-bold text-dark"><?= htmlspecialchars($p['nome']) ?></span>
                         </div>
-                        
+
                         <div class="col-md-4">
                             <label class="small text-uppercase fw-bold text-muted d-block mb-1">Nº do Processo</label>
                             <code class="fs-6 text-primary fw-bold"><?= campo($p['numero_processo']) ?></code>
@@ -83,12 +85,12 @@ function campo($valor) {
                         </div>
 
                         <?php if (!empty($p['observacoes'])): ?>
-                        <div class="col-12">
-                            <div class="bg-light p-3 rounded border-start border-4 border-warning">
-                                <label class="small text-uppercase fw-bold text-muted d-block mb-1">Observações do Cadastro</label>
-                                <p class="mb-0 text-dark small"><?= nl2br(htmlspecialchars($p['observacoes'])) ?></p>
+                            <div class="col-12">
+                                <div class="bg-light p-3 rounded border-start border-4 border-warning">
+                                    <label class="small text-uppercase fw-bold text-muted d-block mb-1">Observações do Cadastro</label>
+                                    <p class="mb-0 text-dark small"><?= nl2br(htmlspecialchars($p['observacoes'])) ?></p>
+                                </div>
                             </div>
-                        </div>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -99,13 +101,13 @@ function campo($valor) {
             <div class="card border-0 shadow-sm border-top border-4" style="border-color: var(--ser-orange) !important;">
                 <div class="card-body">
                     <h5 class="fw-bold mb-4">Acompanhamento</h5>
-                    
+
                     <div class="d-grid gap-3">
-                        
+
                         <div class="p-3 rounded border <?= $inclusao ? 'bg-light-success' : 'bg-light' ?>">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h6 class="fw-bold mb-0">1. Inclusão</h6>
-                                <?php if($inclusao): ?>
+                                <?php if ($inclusao): ?>
                                     <span class="badge bg-success small">Concluído</span>
                                 <?php else: ?>
                                     <span class="badge bg-warning text-dark small">Pendente</span>
@@ -125,15 +127,15 @@ function campo($valor) {
                         <div class="p-3 rounded border <?= $final ? 'bg-light-success' : 'bg-light' ?>">
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <h6 class="fw-bold mb-0">2. Avaliação Final</h6>
-                                <?php if($final): ?>
+                                <?php if ($final): ?>
                                     <span class="badge bg-success small">Concluído</span>
-                                <?php elseif(!$inclusao): ?>
+                                <?php elseif (!$inclusao): ?>
                                     <span class="badge bg-secondary small">Bloqueado</span>
                                 <?php else: ?>
                                     <span class="badge bg-warning text-dark small">Pendente</span>
                                 <?php endif; ?>
                             </div>
-                            
+
                             <?php if (!$inclusao): ?>
                                 <p class="small text-muted mb-0"><i class="bi bi-lock-fill me-1"></i> Libera após a inclusão.</p>
                             <?php elseif (!$final): ?>
@@ -141,14 +143,14 @@ function campo($valor) {
                                     <i class="bi bi-pencil-square me-1"></i> Preencher Final
                                 </a>
                             <?php else: ?>
-                                <a href="ficha_final_ver.php?participante_id=<?= $p['id'] ?>" class="btn btn-sm btn-outline-secondary w-100">
-                                    <i class="bi bi-eye me-1"></i> Visualizar Ficha
+                                <a href="ficha_final_ver.php?id=<?= $p['id'] ?>" class="btn btn-sm btn-outline-success w-100">
+                                    <i class="bi bi-eye me-1"></i> Visualizar/Editar Ficha
                                 </a>
                             <?php endif; ?>
                         </div>
+                    </div>
+                    <hr class="my-4">
 
-                    </div> <hr class="my-4">
-                    
                     <div class="d-grid">
                         <button class="btn btn-light border text-danger btn-sm" onclick="alert('Funcionalidade de Relatório Individual em breve.')">
                             <i class="bi bi-file-earmark-pdf me-1"></i> Exportar Histórico (PDF)
@@ -162,9 +164,18 @@ function campo($valor) {
 </div>
 
 <style>
-    .bg-light-success { background-color: #f0fff4; border-color: #c6f6d5 !important; }
-    label { letter-spacing: 0.5px; }
-    .card { border-radius: 12px; }
+    .bg-light-success {
+        background-color: #f0fff4;
+        border-color: #c6f6d5 !important;
+    }
+
+    label {
+        letter-spacing: 0.5px;
+    }
+
+    .card {
+        border-radius: 12px;
+    }
 </style>
 
 <?php require_once __DIR__ . '/../layout/admin_footer.php'; ?>
