@@ -1,9 +1,9 @@
 <?php
 
 $host = "localhost";
-$db   = "projetoser";
-$user = "root";
-$pass = "";
+$db   = "programa_admin";
+$user = "projetoser";
+$pass = "Lb977U0hJvyzHi1nZp20";
 
 try {
     $pdo = new PDO(

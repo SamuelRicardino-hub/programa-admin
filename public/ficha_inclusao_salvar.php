@@ -1,124 +1,114 @@
 <?php
 require_once __DIR__ . '/../config/conexao.php';
 require_once __DIR__ . '/../config/auth.php';
-
 auth();
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    die("Acesso inválido.");
-}
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $id = $_POST['participante_id'] ?? null;
 
-$dados = $_POST;
-$participante_id = $dados['participante_id'] ?? null;
-
-if (!$participante_id) {
-    die("ID do participante não informado.");
-}
-
-try {
-    // 1. Verificamos se já existe uma ficha para decidir entre INSERT ou UPDATE
-    $check = $pdo->prepare("SELECT id FROM ficha_inclusao WHERE participante_id = ?");
-    $check->execute([$participante_id]);
-    $ficha_existente = $check->fetch();
-
-    // 2. Preparação dos campos "Outro" 
-    // (Se o usuário selecionou 'Outro', usamos o valor do campo de texto)
-    $religiao = ($dados['religiao'] == 'Outra') ? 'Outra' : $dados['religiao'];
-    $escolaridade = ($dados['escolaridade'] == 'Outro') ? 'Outro' : $dados['escolaridade'];
-    $trabalho = ($dados['trabalho'] == 'Outro') ? 'Outro' : $dados['trabalho'];
-    $moradia = ($dados['moradia'] == 'Outro') ? 'Outro' : $dados['moradia'];
-
-    if ($ficha_existente) {
-        // SQL DE ATUALIZAÇÃO (Nomes baseados no seu SQL Dump)
-        $sql = "UPDATE ficha_inclusao SET 
-                numero_caso = ?, 
-                numero_processo = ?, 
-                nome = ?, 
-                parentesco = ?, 
-                idade = ?, 
-                naturalidade = ?, 
-                cor = ?, 
-                relacionamento_atual = ?, 
-                relacionamento_detalhe = ?, 
-                religiao = ?, 
-                religiao_outro = ?,
-                escolaridade = ?, 
-                escolaridade_outro = ?,
-                renda_familiar = ?, 
-                renda_outro = ?,
-                trabalho = ?, 
-                trabalho_outro = ?,
-                profissao = ?, 
-                condicao_moradia = ?,
-                moradia_outro = ?,
-                relacionamento_outro = ?
-                WHERE participante_id = ?";
-        
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([
-            $dados['numero_caso'],
-            $dados['numero_processo'],
-            $dados['nome'], // No seu banco a coluna é 'nome', não 'nome_completo'
-            $dados['parentesco'],
-            $dados['idade'],
-            $dados['naturalidade'],
-            $dados['cor'],
-            $dados['relacionamento'], // Vem do select 'relacionamento'
-            $dados['relacao_com'],    // Vem do select 'relacao_com'
-            $religiao,
-            $dados['religiao_outro'] ?? null,
-            $escolaridade,
-            $dados['escolaridade_outro'] ?? null,
-            $dados['renda'],
-            $dados['renda_outro'] ?? null,
-            $trabalho,
-            $dados['trabalho_outro'] ?? null,
-            $dados['profissao'],
-            $moradia,
-            $dados['moradia_outro'] ?? null,
-            $dados['relacionamento_outro'] ?? null,
-            $participante_id
-        ]);
-    } else {
-        // SQL DE INSERÇÃO (Caso ainda não exista a ficha)
-        $sql = "INSERT INTO ficha_inclusao (
-            participante_id, numero_caso, numero_processo, nome, parentesco, idade, 
-            naturalidade, cor, relacionamento_atual, relacionamento_detalhe, 
-            religiao, religiao_outro, escolaridade, escolaridade_outro, 
-            renda_familiar, renda_outro, trabalho, trabalho_outro, 
-            profissao, condicao_moradia, moradia_outro, relacionamento_outro
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([
-            $participante_id,
-            $dados['numero_caso'],
-            $dados['numero_processo'],
-            $dados['nome'],
-            $dados['parentesco'],
-            $dados['idade'],
-            $dados['naturalidade'],
-            $dados['cor'],
-            $dados['relacionamento'],
-            $dados['relacao_com'],
-            $religiao,
-            $dados['religiao_outro'] ?? null,
-            $escolaridade,
-            $dados['escolaridade_outro'] ?? null,
-            $dados['renda'],
-            $dados['renda_outro'] ?? null,
-            $trabalho,
-            $dados['trabalho_outro'] ?? null,
-            $dados['profissao'],
-            $moradia,
-            $dados['moradia_outro'] ?? null,
-            $dados['relacionamento_outro'] ?? null
-        ]);
+    if (!$id) {
+        die("ID do participante não fornecido.");
     }
 
-    header("Location: participantes_detalhes.php?id=" . $participante_id . "&sucesso=1");
-    exit;
+    // --- TRATAMENTO DE CAMPOS MULTI-SELEÇÃO (CHECKBOXES) ---
+    
+    // Bebidas
+    $bebidas = isset($_POST['bebidas']) ? implode(', ', $_POST['bebidas']) : '';
+    if (!empty($_POST['bebida_outro'])) {
+        $bebidas .= (empty($bebidas) ? '' : ', ') . $_POST['bebida_outro'];
+    }
 
-} catch (PDOException $e) {
-    die("Erro ao salvar no Banco de Dados: " . $e->getMessage());
+    // Drogas
+    $drogas = isset($_POST['drogas']) ? implode(', ', $_POST['drogas']) : '';
+    if (!empty($_POST['droga_outro'])) {
+        $drogas .= (empty($drogas) ? '' : ', ') . $_POST['droga_outro'];
+    }
+
+    // Vítimas da Violência Praticada
+    $vitimas = isset($_POST['vitimas']) ? implode(', ', $_POST['vitimas']) : '';
+    if (!empty($_POST['vitima_outro'])) {
+        $vitimas .= (empty($vitimas) ? '' : ', ') . $_POST['vitima_outro'];
+    }
+
+    // Tipos de Violência Praticada
+    $tipos_v = isset($_POST['tipos_v_praticada']) ? implode(', ', $_POST['tipos_v_praticada']) : '';
+    if (!empty($_POST['tipo_v_outro'])) {
+        $tipos_v .= (empty($tipos_v) ? '' : ', ') . $_POST['tipo_v_outro'];
+    }
+
+    // --- CAPTURA DOS DEMAIS CAMPOS ---
+    
+    $dados = [
+        'participante_id'               => $id,
+        'numero_caso'                   => $_POST['numero_caso'] ?? '',
+        'parentesco_denunciante'        => $_POST['parentesco'] ?? '',
+        'naturalidade'                  => $_POST['naturalidade'] ?? '',
+        'cor'                           => $_POST['cor'] ?? '',
+        'religiao'                      => ($_POST['religiao'] === 'Outra') ? $_POST['religiao_outro'] : $_POST['religiao'],
+        'relacionamento_atual'          => ($_POST['relacionamento'] === 'Outro') ? $_POST['relacionamento_outro'] : $_POST['relacionamento'],
+        'relacionamento_amoroso_detalhe'=> $_POST['relacao_com'] ?? '',
+        'escolaridade'                  => ($_POST['escolaridade'] === 'Outro') ? $_POST['escolaridade_outro'] : $_POST['escolaridade'],
+        'renda_familiar'                => ($_POST['renda'] === 'Outro') ? $_POST['renda_outro'] : $_POST['renda'],
+        'trabalho_ocupacao'             => ($_POST['trabalho'] === 'Outro') ? $_POST['trabalho_outro'] : $_POST['trabalho'],
+        'profissao'                     => $_POST['profissao'] ?? '',
+        'condicao_moradia'              => ($_POST['moradia'] === 'Outro') ? $_POST['moradia_outro'] : $_POST['moradia'],
+        'qtd_filhos'                    => (int)$_POST['qtd_filhos'],
+        'pessoas_na_casa'               => (int)$_POST['pessoas_na_casa'],
+        'filhos_com_atual'              => $_POST['filhos_com_atual'] ?? '',
+        'filhos_com_denunciante'        => $_POST['filhos_com_denunciante'] ?? '',
+        'frequencia_ver_filhos'         => $_POST['frequencia_ver_filhos'] ?? '',
+        'conversa_criacao_filhos'       => $_POST['conversa_criacao_filhos'] ?? '',
+        'auxilio_licoes_casa'           => $_POST['auxilio_licoes_casa'] ?? '',
+        'reunioes_escola'               => $_POST['reunioes_escola'] ?? '',
+        'divisao_domestica'             => $_POST['divisao_domestica'] ?? '',
+        'relacionamento_parceira_atual' => $_POST['relacionamento_parceira_atual'] ?? '',
+        'problemas_saude'               => $_POST['problemas_saude'] ?? '',
+        'medicacao'                     => $_POST['medicacao'] ?? '',
+        'frequencia_bares'              => $_POST['frequencia_bares'] ?? '',
+        'bebidas_comuns'                => $bebidas,
+        'drogas_utilizadas'             => $drogas,
+        'praticou_violencia_ultimo_ano' => $_POST['praticou_violencia_ultimo_ano'] ?? '',
+        'violencia_em_quem'             => $vitimas,
+        'tipo_violencia_praticada'      => $tipos_v,
+        'pai_presente_infancia'         => $_POST['pai_presente_infancia'] ?? '',
+        'conflitos_infancia'            => $_POST['conflitos_infancia'] ?? '',
+        'ja_foi_agredido_companheira'   => $_POST['ja_foi_agredido_companheira'] ?? '',
+        'tipo_violencia_sofrida'        => $_POST['tipo_violencia_sofrida'] ?? '',
+        'denunciou_motivo'              => $_POST['denunciou_motivo'] ?? '',
+        'indiciado_anteriormente'       => $_POST['indiciado_anteriormente'] ?? '',
+        'tipo_violencia_anterior'       => $_POST['tipo_violencia_anterior'] ?? '',
+        'uso_drogas_antes_fato'         => $_POST['uso_drogas_antes_fato'] ?? '',
+        'indiciado_outro_motivo'        => $_POST['indiciado_outro_motivo'] ?? '',
+        'historico_prisao'              => $_POST['historico_prisao'] ?? ''
+    ];
+
+    try {
+        // Verifica se já existe uma ficha para esse participante
+        $check = $pdo->prepare("SELECT id FROM ficha_inclusao WHERE participante_id = ?");
+        $check->execute([$id]);
+        
+        if ($check->fetch()) {
+            // Se já existe, faz UPDATE
+            $sql = "UPDATE ficha_inclusao SET ";
+            $campos = [];
+            foreach ($dados as $key => $value) {
+                if ($key !== 'participante_id') $campos[] = "$key = :$key";
+            }
+            $sql .= implode(', ', $campos) . " WHERE participante_id = :participante_id";
+        } else {
+            // Se não existe, faz INSERT
+            $cols = implode(', ', array_keys($dados));
+            $placeholders = ':' . implode(', :', array_keys($dados));
+            $sql = "INSERT INTO ficha_inclusao ($cols) VALUES ($placeholders)";
+        }
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($dados);
+
+        header("Location: participantes_detalhes.php?id=$id&status=sucesso");
+    } catch (PDOException $e) {
+        die("Erro ao salvar os dados: " . $e->getMessage());
+    }
+} else {
+    header("Location: participantes_lista.php");
 }

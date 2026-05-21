@@ -97,33 +97,33 @@ if (session_status() === PHP_SESSION_NONE) {
 
             <ul class="nav flex-column">
                 <li class="nav-item">
-                    <a href="/programa-admin/public/dashboard.php" class="nav-link">
+                    <a href="/public/dashboard.php" class="nav-link">
                         <i class="bi bi-speedometer2"></i> Página Inicial
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/programa-admin/public/turmas_lista.php" class="nav-link">
+                    <a href="/public/turmas_lista.php" class="nav-link">
                         <i class="bi bi-mortarboard"></i> Turmas
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/programa-admin/public/participantes_lista.php" class="nav-link">
+                    <a href="/public/participantes_lista.php" class="nav-link">
                         <i class="bi bi-people"></i> Participantes
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/programa-admin/public/usuarios_lista.php" class="nav-link">
+                    <a href="/public/usuarios_lista.php" class="nav-link">
                         <i class="bi bi-person-gear"></i> Usuários
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/programa-admin/public/busca.php" class="nav-link">
+                    <a href="/public/busca.php" class="nav-link">
                         <i class="bi bi-search"></i> Buscar
                     </a>
                 </li>
 
                 <li class="nav-item mt-auto">
-                    <a href="/programa-admin/public/logout.php" class="nav-link text-danger">
+                    <a href="/public/logout.php" class="nav-link text-danger">
                         <i class="bi bi-box-arrow-right"></i> Sair
                     </a>
                 </li>

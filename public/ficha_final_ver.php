@@ -4,7 +4,7 @@ require_once __DIR__ . '/../config/auth.php';
 
 auth();
 
-$participante_id = $_GET['participante_id'] ?? null;
+$participante_id = $_GET['participante_id'] ?? $_GET['id'] ?? null;
 if (!$participante_id) die("Participante não informado");
 
 // Busca o nome do participante
@@ -14,7 +14,7 @@ $p = $stmt->fetch();
 
 if (!$p) die("Participante não encontrado");
 
-// Busca a ficha de avaliação final
+// Busca a ficha de avaliação final completa
 $stmt = $pdo->prepare("SELECT * FROM ficha_avaliacao_final WHERE participante_id = ?");
 $stmt->execute([$participante_id]);
 $f = $stmt->fetch();
@@ -30,6 +30,7 @@ if (!$f) {
     exit;
 }
 
+// Helper para exibição
 function campo($f, $c) {
     return !empty($f[$c]) ? nl2br(htmlspecialchars($f[$c])) : '<span class="text-muted italic">Não informado</span>';
 }
@@ -47,10 +48,8 @@ function campo($f, $c) {
     <style>
         body { background: #f5f7f9; color: #2d3436; font-size: 0.95rem; }
         .card { border-radius: 15px; border: none; }
-        
         .header-doc { display: flex; align-items: center; border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 30px; }
         .header-text { text-align: center; flex: 1; line-height: 1.3; }
-        
         .section-title { 
             background: #f8f9fa; 
             font-weight: 800; 
@@ -62,11 +61,9 @@ function campo($f, $c) {
             color: #0984e3;
             border-left: 5px solid #0984e3;
         }
-
         .question-box { margin-bottom: 18px; padding-left: 5px; }
         .label { font-weight: 700; color: #636e72; display: block; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 4px; }
         .answer { background: #fff; padding: 5px 0; border-bottom: 1px solid #eee; min-height: 25px; }
-        
         .badge-theme { background: #e1f5fe; color: #0288d1; border: 1px solid #b3e5fc; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; display: inline-block; margin: 2px; }
 
         @media print {
@@ -102,9 +99,9 @@ function campo($f, $c) {
             <div class="header-doc">
                 <img src="../assets/LogoPrefeitura.png" height="85" alt="Prefeitura">
                 <div class="header-text">
-                    <div class="fw-bold">ESTADO DO RIO DE JANEIRO</div>
-                    <div class="fw-bold fs-5">PREFEITURA MUNICIPAL DE PARACAMBI</div>
-                    <div class="small">SECRETARIA MUNICIPAL DE PROTEÇÃO E POLÍTICA PARA A MULHER</div>
+                    <div class="fw-bold text-uppercase">Estado do Rio de Janeiro</div>
+                    <div class="fw-bold fs-5 text-uppercase">Prefeitura Municipal de Paracambi</div>
+                    <div class="small text-uppercase">Secretaria Municipal de Proteção e Política para a Mulher</div>
                     <div class="fw-bold text-success mt-1">PROJETO S.E.R. – GRUPO REFLEXIVO PARA HOMENS</div>
                 </div>
                 <img src="../assets/ProjetoSER.jpg" height="85" alt="Projeto SER">
@@ -112,11 +109,11 @@ function campo($f, $c) {
 
             <div class="text-center mb-5">
                 <h4 class="fw-bold">AVALIAÇÃO DE DESFECHO E IMPACTO</h4>
-                <p class="text-muted">Aplicação Final do Protocolo de Atendimento</p>
+                <p class="text-muted">Relatório Final do Protocolo de Atendimento</p>
             </div>
 
             <div class="mb-4 p-3 border rounded bg-light">
-                <span class="label">Participante avaliado:</span>
+                <span class="label">Participante:</span>
                 <span class="fs-5 fw-bold text-dark"><?= htmlspecialchars($p['nome']) ?></span>
             </div>
 
@@ -127,89 +124,72 @@ function campo($f, $c) {
                     <div class="answer"><?= campo($f, 'sentimento_denuncia') ?></div>
                 </div>
                 <div class="col-md-6 question-box">
-                    <span class="label">Considerou a denúncia justa?</span>
-                    <div class="answer fw-bold text-primary"><?= strtoupper(campo($f, 'acha_justa')) ?></div>
-                </div>
-                <div class="col-12 question-box">
-                    <span class="label">Justificativa da percepção:</span>
+                    <span class="label">Justificativa sobre a denúncia (Justiça):</span>
                     <div class="answer"><?= campo($f, 'motivo_denuncia') ?></div>
                 </div>
             </div>
 
             <div class="section-title">2. Avaliação da Experiência no Grupo</div>
             <div class="row">
-                <div class="col-md-6 question-box">
-                    <span class="label">Houve dificuldade para participar?</span>
-                    <div class="answer"><?= campo($f, 'dificuldade_participar') ?></div>
+                <div class="col-md-12 question-box">
+                    <span class="label">Avaliação da Participação:</span>
+                    <div class="answer fw-bold text-primary"><?= strtoupper(campo($f, 'avaliacao_participacao')) ?></div>
                 </div>
                 <div class="col-md-6 question-box">
-                    <span class="label">Avaliação qualitativa da participação:</span>
-                    <div class="answer"><?= campo($f, 'avaliacao_participacao') ?></div>
-                </div>
-                <div class="col-12 question-box">
-                    <span class="label">Observações sobre as dificuldades:</span>
-                    <div class="answer"><?= campo($f, 'motivo_dificuldade') ?></div>
+                    <span class="label">Vantagens da Experiência:</span>
+                    <div class="answer text-success"><?= campo($f, 'vantagens_experiencia') ?></div>
                 </div>
                 <div class="col-md-6 question-box">
-                    <span class="label">Pontos Positivos (O que foi bom):</span>
-                    <div class="answer text-success"><?= campo($f, 'pontos_positivos') ?></div>
-                </div>
-                <div class="col-md-6 question-box">
-                    <span class="label">Pontos Negativos (O que foi ruim):</span>
-                    <div class="answer text-danger"><?= campo($f, 'pontos_negativos') ?></div>
+                    <span class="label">Desvantagens da Experiência:</span>
+                    <div class="answer text-danger"><?= campo($f, 'desvantagens_experiencia') ?></div>
                 </div>
             </div>
 
-            <div class="section-title">3. Absorção de Conteúdo</div>
-            <div class="question-box">
-                <span class="label">Temas identificados como mais relevantes:</span>
+            <div class="section-title">3. Conteúdos e Reflexões</div>
+            <div class="question-box mb-4">
+                <span class="label">Temas mais relevantes para o participante:</span>
                 <div class="mt-2">
                     <?php 
-                    $temas = explode(',', $f['temas_importantes'] ?? '');
-                    if(!empty($f['temas_importantes'])) {
+                    $temas = !empty($f['temas_importantes']) ? explode(',', $f['temas_importantes']) : [];
+                    if(!empty($temas)) {
                         foreach($temas as $tema) {
                             echo '<span class="badge-theme">' . trim(htmlspecialchars($tema)) . '</span>';
                         }
                     } else {
-                        echo '<span class="text-muted">-</span>';
+                        echo '<span class="text-muted">Nenhum tema registrado.</span>';
                     }
                     ?>
                 </div>
             </div>
 
-            <div class="section-title">4. Impacto e Autoavaliação de Mudança</div>
             <div class="row">
-                <div class="col-md-4 question-box">
-                    <span class="label">Percepção de mudança:</span>
-                    <div class="answer fw-bold"><?= campo($f, 'houve_mudanca') ?></div>
-                </div>
-                <div class="col-md-8 question-box">
-                    <span class="label">Descrição da mudança comportamental:</span>
-                    <div class="answer"><?= campo($f, 'descricao_mudanca') ?></div>
-                </div>
-                <div class="col-md-6 question-box">
-                    <span class="label">O que mais gostou na dinâmica do grupo?</span>
-                    <div class="answer"><?= campo($f, 'gostou_grupo') ?></div>
-                </div>
-                <div class="col-md-6 question-box">
-                    <span class="label">Sentimento ao concluir o ciclo:</span>
-                    <div class="answer"><?= campo($f, 'como_saiu') ?></div>
+                <div class="col-md-12 question-box">
+                    <span class="label">Impacto das mudanças de costume entre homens e mulheres nos relacionamentos:</span>
+                    <div class="answer"><?= campo($f, 'impacto_mudanca_costumes') ?></div>
                 </div>
             </div>
 
-            <div class="section-title">5. Recomendação e Melhorias</div>
+            <div class="section-title">4. Mudanças e Relacionamentos</div>
             <div class="row">
-                <div class="col-md-4 question-box">
-                    <span class="label">Recomendaria o grupo?</span>
-                    <div class="answer fw-bold"><?= campo($f, 'recomendaria') ?></div>
+                <div class="col-md-6 question-box">
+                    <span class="label">Mudança na visão de mundo/cabeça:</span>
+                    <div class="answer fw-bold"><?= campo($f, 'mudanca_visao_mundo') ?></div>
                 </div>
-                <div class="col-md-8 question-box">
-                    <span class="label">Motivo da recomendação/não recomendação:</span>
+                <div class="col-md-6 question-box">
+                    <span class="label">Mudanças nos relacionamentos nos últimos meses:</span>
+                    <div class="answer"><?= campo($f, 'mudanca_relacionamentos') ?></div>
+                </div>
+                <div class="col-md-12 question-box">
+                    <span class="label">O que mais gostou no Grupo Reflexivo?</span>
+                    <div class="answer"><?= campo($f, 'o_que_mais_gostou') ?></div>
+                </div>
+            </div>
+
+            <div class="section-title">5. Recomendação Final</div>
+            <div class="row">
+                <div class="col-md-12 question-box">
+                    <span class="label">Recomendaria o grupo a outros homens? Justificativa:</span>
                     <div class="answer"><?= campo($f, 'motivo_recomendacao') ?></div>
-                </div>
-                <div class="col-12 question-box">
-                    <span class="label">Sugestões e Críticas Gerais:</span>
-                    <div class="answer"><?= campo($f, 'sugestoes') ?></div>
                 </div>
             </div>
 

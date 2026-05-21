@@ -144,7 +144,7 @@ function campo($valor)
                                 </a>
                             <?php else: ?>
                                 <a href="ficha_final_ver.php?id=<?= $p['id'] ?>" class="btn btn-sm btn-outline-success w-100">
-                                    <i class="bi bi-eye me-1"></i> Visualizar/Editar Ficha
+                                    <i class="bi bi-eye me-1"></i> Visualizar Ficha
                                 </a>
                             <?php endif; ?>
                         </div>

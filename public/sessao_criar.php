@@ -1,14 +1,48 @@
 <?php
+// 1. ATIVE O REPORT DE ERROS (Útil para capturar qualquer outro detalhe do banco se houver)
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 require_once __DIR__ . '/../config/conexao.php';
 require_once __DIR__ . '/../config/auth.php';
-require_once __DIR__ . '/../layout/admin_header.php';
 
 auth();
 canAny(['admin', 'atendente']);
 
+// 2. CORREÇÃO CRÍTICA: Processa o formulário ANTES de renderizar qualquer layout/HTML
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $post_turma_id = $_POST['turma_id'] ?? null;
+    $data = $_POST['data'] ?? null;
+    $descricao = $_POST['descricao'] ?? null;
+
+    if ($post_turma_id && $data && $descricao) {
+        try {
+            $stmt = $pdo->prepare("
+                INSERT INTO turmas_sessoes (turma_id, data, descricao)
+                VALUES (?, ?, ?)
+            ");
+
+            $stmt->execute([
+                $post_turma_id,
+                $data,
+                $descricao
+            ]);
+
+            // Redirecionamento limpo (funciona 100% pois nenhum HTML foi enviado ainda)
+            header("Location: sessoes_lista.php?turma_id=" . $post_turma_id);
+            exit;
+        } catch (PDOException $e) {
+            die("Erro ao salvar a sessão no banco de dados: " . $e->getMessage());
+        }
+    } else {
+        die("Por favor, preencha todos os campos obrigatórios.");
+    }
+}
+
+// 3. RECUPERAÇÃO DE DADOS PARA EXIBIÇÃO DA TELA (GET)
 $turma_id = $_GET['turma_id'] ?? null;
 
-// Busca o nome da turma para exibir no título (melhora o contexto)
 $stmt_turma = $pdo->prepare("SELECT nome FROM turmas WHERE id = ?");
 $stmt_turma->execute([$turma_id]);
 $turma = $stmt_turma->fetch();
@@ -17,21 +51,8 @@ if (!$turma) {
     die("Turma não encontrada.");
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $stmt = $pdo->prepare("
-        INSERT INTO turmas_sessoes (turma_id, data, descricao)
-        VALUES (?, ?, ?)
-    ");
-
-    $stmt->execute([
-        $_POST['turma_id'],
-        $_POST['data'],
-        $_POST['descricao']
-    ]);
-
-    header("Location: sessoes_lista.php?turma_id=" . $_POST['turma_id']);
-    exit;
-}
+// 4. AGORA SIM INCLUÍMOS O LAYOUT COM SEGURANÇA
+require_once __DIR__ . '/../layout/admin_header.php';
 ?>
 
 <div class="container py-5">
@@ -48,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="card shadow-sm border-0">
                 <div class="card-body p-4">
                     <form method="POST">
-                        <input type="hidden" name="turma_id" value="<?= $turma_id ?>">
+                        <input type="hidden" name="turma_id" value="<?= htmlspecialchars($turma_id) ?>">
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">Data do Encontro</label>
@@ -71,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <a href="sessoes_lista.php?turma_id=<?= $turma_id ?>" class="btn btn-light border">
+                            <a href="sessoes_lista.php?turma_id=<?= htmlspecialchars($turma_id) ?>" class="btn btn-light border">
                                 Cancelar
                             </a>
                             <button type="submit" class="btn btn-success px-4">
