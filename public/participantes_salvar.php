@@ -2,7 +2,9 @@
 // Se este arquivo está na raiz ou em /admin, o caminho para config é:
 require_once __DIR__ . '/../config/conexao.php';
 require_once __DIR__ . '/../config/auth.php';
-require_once __DIR__ . '/../config/logs.php';
+
+// ATENÇÃO: Ajustado para o nome correto do arquivo de log criado (no singular)
+require_once __DIR__ . '/../config/logs.php'; 
 
 auth();
 
@@ -43,6 +45,9 @@ try {
         ");
         $stmt_ins_pivo->execute([$turma_id, $id]);
 
+        // REGISTRO DE LOG DA EDIÇÃO (Salva de forma segura o que foi alterado)
+        registrarLog($pdo, 'UPDATE', 'participantes', $id, "Editou o participante: " . $nome . " (Proc: " . $numero_processo . ")");
+
         $mensagem = "atualizado";
     } else {
         // ==========================================
@@ -54,19 +59,18 @@ try {
         ");
         $stmt->execute([$nome, $numero_processo, $turma_id, $total_passagens, $observacoes]);
 
-        // ... após o $stmt->execute() do INSERT de participantes ...
-        $novo_participante_id = $pdo->lastInsertId();
-        registrarLog($pdo, 'CREATE', 'participantes', $novo_participante_id, "Cadastrou o participante: " . $nome . " - : " . $cpf);
-
-        // Recupera o ID gerado para o participante que acabou de ser criado
+        // 1º PASSO: Recupera IMEDIATAMENTE o ID gerado pelo banco de dados
         $novo_participante_id = $pdo->lastInsertId();
 
-        // Insere o vínculo correspondente na tabela pivô para a lista de presença funcionar
+        // 2º PASSO: Insere o vínculo na tabela pivô usando o ID recém-criado
         $stmt_ins_pivo = $pdo->prepare("
             INSERT INTO turmas_participantes (turma_id, participante_id) 
             VALUES (?, ?)
         ");
         $stmt_ins_pivo->execute([$turma_id, $novo_participante_id]);
+
+        // 3º PASSO: Com toda a estrutura salva, registra o Log de Criação com segurança
+        registrarLog($pdo, 'CREATE', 'participantes', $novo_participante_id, "Cadastrou o participante: " . $nome . " (Proc: " . $numero_processo . ")");
 
         $mensagem = "cadastrado";
     }

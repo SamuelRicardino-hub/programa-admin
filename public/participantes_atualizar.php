@@ -48,17 +48,11 @@ try {
     ]);
 
 
-    registrarLog(
-        $pdo,
-        'UPDATE',
-        'participantes',
-        $id,
-        "Editou participante: {$antigo['nome']} → $nome (ID $id)"
-    );
+    // ... logo após o $sql->execute() do UPDATE de participantes ...
+    registrarLog($pdo, 'UPDATE', 'participantes', $id, "Editou participante: " . $nome . " (ID " . $id . ")");
 
     header("Location: participantes_lista.php");
     exit;
-
 } catch (PDOException $e) {
     die("Erro ao atualizar participante");
 }

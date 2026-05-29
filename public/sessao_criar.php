@@ -29,6 +29,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $descricao
             ]);
 
+            // ... logo após o $stmt->execute() do INSERT na tabela turmas_sessoes ...
+            $nova_sessao_id = $pdo->lastInsertId();
+            require_once __DIR__ . '/../config/logs.php';
+
+            // Buscando o nome da turma para o log ficar mais compreensível
+            $stmt_turma = $pdo->prepare("SELECT nome FROM turmas WHERE id = ?");
+            $stmt_turma->execute([$turma_id]);
+            $nome_turma = $stmt_turma->fetchColumn() ?: "ID " . $turma_id;
+
+            registrarLog($pdo, 'CREATE', 'turmas_sessoes', $nova_sessao_id, "Criou a sessão/encontro '" . $descricao . "' para a " . $nome_turma);
+
             // Redirecionamento limpo (funciona 100% pois nenhum HTML foi enviado ainda)
             header("Location: sessoes_lista.php?turma_id=" . $post_turma_id);
             exit;
@@ -58,7 +69,7 @@ require_once __DIR__ . '/../layout/admin_header.php';
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            
+
             <div class="mb-4">
                 <h3 class="fw-bold text-dark">
                     <i class="bi bi-calendar-plus me-2 text-success"></i>Agendar Nova Sessão
@@ -75,8 +86,8 @@ require_once __DIR__ . '/../layout/admin_header.php';
                             <label class="form-label fw-bold">Data do Encontro</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-white"><i class="bi bi-calendar-event"></i></span>
-                                <input type="date" name="data" class="form-control" 
-                                       value="<?= date('Y-m-d') ?>" required>
+                                <input type="date" name="data" class="form-control"
+                                    value="<?= date('Y-m-d') ?>" required>
                             </div>
                             <small class="text-muted">Escolha a data em que o grupo irá se reunir.</small>
                         </div>
@@ -85,8 +96,8 @@ require_once __DIR__ . '/../layout/admin_header.php';
                             <label class="form-label fw-bold">Título ou Tema da Sessão</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-white"><i class="bi bi-chat-left-text"></i></span>
-                                <input type="text" name="descricao" class="form-control" 
-                                       placeholder="Ex: 1º Encontro - Introdução e Gênero" required>
+                                <input type="text" name="descricao" class="form-control"
+                                    placeholder="Ex: 1º Encontro - Introdução e Gênero" required>
                             </div>
                             <small class="text-muted">Descreva brevemente o tema que será abordado.</small>
                         </div>

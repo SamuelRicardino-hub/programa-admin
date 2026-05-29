@@ -31,12 +31,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $sql->execute([$nome, $email, $nivel, $id]);
 
-        // Registrar no Log de auditoria
-        registrarLog($pdo, 'UPDATE', 'usuarios', $id, "Administrador atualizou o perfil do usuário: $nome ($email)");
-
+        // ... logo após o $sql->execute() do UPDATE de usuários ...
+        registrarLog($pdo, 'UPDATE', 'usuarios', $id, "Alterou dados do usuário: " . $nome . " (ID " . $id . ")");
+        
         header("Location: usuarios_lista.php?msg=atualizado");
         exit;
-
     } catch (PDOException $e) {
         die("Erro ao atualizar o usuário: " . $e->getMessage());
     }

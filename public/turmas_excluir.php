@@ -37,7 +37,8 @@ $sql = $pdo->prepare("DELETE FROM turmas WHERE id = :id");
 $sql->bindParam(':id', $id);
 $sql->execute();
 
-registrarLog($pdo, 'DELETE', 'turmas', $id, "Excluiu a turma ID: " . $id);
+// ... logo após o $sql->execute() do DELETE de turmas ...
+registrarLog($pdo, 'DELETE', 'turmas', $id, "Excluiu a turma ID " . $id);
 
 header("Location: turmas_lista.php?excluido=1");
 exit;

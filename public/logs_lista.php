@@ -1,51 +1,103 @@
 <?php
-// ATIVAÇÃO DE DIAGNÓSTICO: Mantém ativo para monitorar o banco
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 require_once __DIR__ . "/../config/conexao.php";
 require_once __DIR__ . "/../config/auth.php";
-require_once __DIR__ . "/../config/logs.php"; 
 require_once __DIR__ . "/../layout/admin_header.php";
+require_once __DIR__ . "/../config/logs.php";
+
 
 auth();
 can('admin'); 
 
-// Paginação básica
+// Filtros
+$busca = isset($_GET['busca']) ? trim($_GET['busca']) : '';
+$filtro_tipo = isset($_GET['tipo']) ? trim($_GET['tipo']) : '';
+
+// Paginação
 $pagina = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 if ($pagina < 1) $pagina = 1;
-$limite = 50; 
+$limite = 30; 
 $offset = ($pagina - 1) * $limite;
 
-// Busca o total para a paginação
-$total_registros = $pdo->query("SELECT COUNT(*) FROM logs")->fetchColumn();
-$total_paginas = ceil($total_registros / $limite);
+// Monta filtros baseados na estrutura real do seu banco
+$condicoes = [];
+$params = [];
 
-// Determina qual coluna de data existe na tabela (criado_em ou outra encontrada no erro anterior)
-$coluna_data = 'criado_em';
-try {
-    $pdo->query("SELECT criado_em FROM logs LIMIT 1");
-} catch (PDOException $e) {
-    // Se der erro, tenta usar outra coluna de data comum (como data ou data_hora)
-    $coluna_data = 'data'; 
+if (!empty($busca)) {
+    $condicoes[] = "(l.acao LIKE ? OR u.nome LIKE ?)";
+    $params[] = "%$busca%";
+    $params[] = "%$busca%";
 }
 
-// Busca os logs trazendo os mais recentes primeiro
-$sql = $pdo->prepare("SELECT * FROM logs ORDER BY {$coluna_data} DESC LIMIT ? OFFSET ?");
-$sql->bindValue(1, $limite, PDO::PARAM_INT);
-$sql->bindValue(2, $offset, PDO::PARAM_INT);
-$sql->execute();
-$logs = $sql->fetchAll(PDO::FETCH_ASSOC);
+if (!empty($filtro_tipo)) {
+    $condicoes[] = "l.tipo = ?";
+    $params[] = $filtro_tipo;
+}
+
+$where_sql = !empty($condicoes) ? "WHERE " . implode(" AND ", $condicoes) : "";
+
+// Conta total
+$stmt_total = $pdo->prepare("SELECT COUNT(*) FROM logs l LEFT JOIN usuarios u ON l.usuario_id = u.id $where_sql");
+$stmt_total->execute($params);
+$total_registros = $stmt_total->fetchColumn();
+$total_paginas = ceil($total_registros / $limite);
+
+// Query otimizada juntando os dados com a tabela de usuários do seu SQL
+$sql_text = "SELECT l.*, u.nome AS funcionario_nome 
+             FROM logs l 
+             LEFT JOIN usuarios u ON l.usuario_id = u.id 
+             $where_sql 
+             ORDER BY l.data DESC LIMIT ? OFFSET ?";
+
+$stmt_logs = $pdo->prepare($sql_text);
+
+$idx = 1;
+foreach ($params as $p) {
+    $stmt_logs->bindValue($idx++, $p);
+}
+$stmt_logs->bindValue($idx++, $limite, PDO::PARAM_INT);
+$stmt_logs->bindValue($idx++, $offset, PDO::PARAM_INT);
+$stmt_logs->execute();
+$logs = $stmt_logs->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<div class="container-fluid py-4">
-    <div class="mb-4 d-flex justify-content-between align-items-center">
-        <div>
-            <h3 class="fw-bold text-dark mb-1">
-                <i class="bi bi-journal-text text-secondary me-2"></i>Logs de Auditoria
-            </h3>
-            <p class="text-muted mb-0 small">Histórico em tempo real de todas as ações realizadas no sistema.</p>
+<div class="container py-4">
+    <div class="mb-4">
+        <h3 class="fw-bold text-dark mb-1">
+            <i class="bi bi-clock-history text-primary me-2"></i>Histórico de Atividades
+        </h3>
+        <p class="text-muted mb-0 small">Painel amigável de auditoria do sistema.</p>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4 bg-light">
+        <div class="card-body p-3">
+            <form method="GET" class="row g-2 align-items-center">
+                <div class="col-md-5">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                        <input type="text" name="busca" class="form-control border-start-0" 
+                               placeholder="Buscar por funcionário ou atividade..." value="<?= htmlspecialchars($busca) ?>">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select name="tipo" class="form-select form-select-sm">
+                        <option value="">Todas as atividades</option>
+                        <option value="CREATE" <?= $filtro_tipo === 'CREATE' ? 'selected' : '' ?>>Cadastros (Novos itens)</option>
+                        <option value="UPDATE" <?= $filtro_tipo === 'UPDATE' ? 'selected' : '' ?>>Alterações (Edições)</option>
+                        <option value="DELETE" <?= $filtro_tipo === 'DELETE' ? 'selected' : '' ?>>Exclusões (Apagados)</option>
+                        <option value="APROVACAO" <?= $filtro_tipo === 'APROVACAO' ? 'selected' : '' ?>>Aprovações</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-grid gap-2 d-md-flex">
+                    <button type="submit" class="btn btn-primary btn-sm px-3 fw-bold">Filtrar</button>
+                    <?php if(!empty($busca) || !empty($filtro_tipo)): ?>
+                        <a href="logs_lista.php" class="btn btn-outline-secondary btn-sm">Limpar</a>
+                    <?php endif; ?>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -53,61 +105,66 @@ $logs = $sql->fetchAll(PDO::FETCH_ASSOC);
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-light">
+                    <thead class="table-light border-bottom text-uppercase fs-7 text-muted">
                         <tr>
-                            <th class="ps-4 py-3" style="width: 15%;">Data/Hora</th>
-                            <th style="width: 15%;">Usuário / Atividade</th>
-                            <th class="text-center" style="width: 10%;">Ação</th>
-                            <th style="width: 15%;">Módulo/Tabela</th>
-                            <th>Descrição da Atividade</th>
+                            <th class="ps-4 py-3" style="width: 150px;">Data/Hora</th>
+                            <th style="width: 200px;">Quem Fez</th>
+                            <th class="text-center" style="width: 140px;">Operação</th>
+                            <th>Descrição do que aconteceu</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="fs-6">
                         <?php if (empty($logs)): ?>
                             <tr>
-                                <td colspan="5" class="text-center py-4 text-muted">Nenhum log registrado até o momento.</td>
+                                <td colspan="4" class="text-center py-5 text-muted">Nenhuma atividade encontrada.</td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($logs as $l): 
-                                // Captura os dados tratando chaves que podem não existir no banco antigo
-                                $usuario_nome = $l['usuario_nome'] ?? $l['usuario'] ?? 'Sistema/Anônimo';
-                                $usuario_id   = $l['usuario_id'] ?? '';
-                                $acao         = $l['acao'] ?? 'INFO';
-                                $tabela       = $l['tabela'] ?? 'geral';
-                                $descricao    = $l['descricao'] ?? '';
-                                $registro_id  = $l['registro_id'] ?? null;
-                                $data_log     = $l[$coluna_data] ?? 'now';
+                                $quem_fez = $l['funcionario_nome'] ?? 'Sistema / ID: '.$l['usuario_id'];
+                                $tipo_acao = strtoupper($l['tipo'] ?? 'UPDATE');
+                                $descricao_evento = $l['acao'] ?? 'Ação não descrita';
+                                $modulo = $l['entidade'] ?? '';
 
-                                // Define a cor do badge com base na ação
-                                $badge_class = 'bg-secondary';
-                                if ($acao === 'CREATE') $badge_class = 'bg-success';
-                                if ($acao === 'UPDATE') $badge_class = 'bg-warning text-dark';
-                                if ($acao === 'DELETE') $badge_class = 'bg-danger';
-                                if ($acao === 'LOGIN')  $badge_class = 'bg-info text-dark';
+                                // Tradução dos termos técnicos para o usuário leigo
+                                $acao_traduzida = "Alterou";
+                                $badge_class = "bg-warning-subtle text-warning-emphasis border border-warning-subtle";
+                                $icone = "bi-pencil-square";
+
+                                if ($tipo_acao === 'CREATE') {
+                                    $acao_traduzida = "Cadastrou";
+                                    $badge_class = "bg-success-subtle text-success border border-success-subtle";
+                                    $icone = "bi-plus-circle-fill";
+                                } elseif ($tipo_acao === 'DELETE') {
+                                    $acao_traduzida = "Excluiu";
+                                    $badge_class = "bg-danger-subtle text-danger border border-danger-subtle";
+                                    $icone = "bi-trash3-fill";
+                                } elseif ($tipo_acao === 'APROVACAO') {
+                                    $acao_traduzida = "Aprovou";
+                                    $badge_class = "bg-info-subtle text-info-emphasis border border-info-subtle";
+                                    $icone = "bi-check-circle-fill";
+                                }
                             ?>
-                            <tr>
+                            <tr class="border-bottom">
                                 <td class="ps-4 text-muted small">
-                                    <?= date('d/m/Y H:i:s', strtotime($data_log)) ?>
+                                    <i class="bi bi-calendar3 me-1"></i> <?= date('d/m/Y', strtotime($l['data'])) ?><br>
+                                    <i class="bi bi-clock text-muted me-1"></i> <?= date('H:i:s', strtotime($l['data'])) ?>
                                 </td>
                                 <td>
-                                    <span class="fw-bold text-dark"><?= htmlspecialchars($usuario_nome, ENT_QUOTES, 'UTF-8') ?></span>
-                                    <?php if (!empty($usuario_id)): ?>
-                                        <br><small class="text-muted">ID: <?= htmlspecialchars($usuario_id) ?></small>
-                                    <?php endif; ?>
+                                    <span class="fw-semibold text-dark"><?= htmlspecialchars($quem_fez) ?></span>
                                 </td>
                                 <td class="text-center">
-                                    <span class="badge <?= $badge_class ?> px-2.5 py-1.5 small font-monospace">
-                                        <?= htmlspecialchars($acao, ENT_QUOTES, 'UTF-8') ?>
+                                    <span class="badge <?= $badge_class ?> px-2.5 py-1.5 rounded-pill w-100 fw-medium small">
+                                        <i class="bi <?= $icone ?> me-1"></i> <?= $acao_traduzida ?>
                                     </span>
                                 </td>
-                                <td class="text-secondary fw-semibold">
-                                    <i class="bi bi-folder2-open me-1"></i><?= htmlspecialchars($tabela, ENT_QUOTES, 'UTF-8') ?>
-                                </td>
-                                <td class="text-dark">
-                                    <?= !empty($descricao) ? htmlspecialchars($descricao, ENT_QUOTES, 'UTF-8') : htmlspecialchars($usuario_nome, ENT_QUOTES, 'UTF-8') ?>
-                                    
-                                    <?php if ($registro_id): ?>
-                                        <span class="badge bg-light text-muted border ms-1">ID Ref: <?= htmlspecialchars($registro_id) ?></span>
+                                <td class="text-dark py-3">
+                                    <div class="mb-0 text-wrap" style="max-width: 600px;">
+                                        <?= htmlspecialchars($descricao_evento) ?>
+                                    </div>
+                                    <?php if(!empty($modulo)): ?>
+                                        <small class="text-muted d-block mt-1" style="font-size: 0.73rem;">
+                                            Setor: <span class="bg-light px-1 rounded border text-uppercase"><?= htmlspecialchars($modulo) ?></span>
+                                        </small>
                                     <?php endif; ?>
                                 </td>
                             </tr>
@@ -122,17 +179,11 @@ $logs = $sql->fetchAll(PDO::FETCH_ASSOC);
     <?php if ($total_paginas > 1): ?>
         <nav class="mt-4">
             <ul class="pagination justify-content-center pagination-sm">
-                <li class="page-item <?= $pagina <= 1 ? 'disabled' : '' ?>">
-                    <a class="page-link" href="?page=<?= $pagina - 1 ?>">Anterior</a>
-                </li>
                 <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
                     <li class="page-item <?= $pagina == $i ? 'active' : '' ?>">
-                        <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                        <a class="page-link" href="?page=<?= $i ?>&busca=<?= urlencode($busca) ?>&tipo=<?= urlencode($filtro_tipo) ?>"><?= $i ?></a>
                     </li>
                 <?php endfor; ?>
-                <li class="page-item <?= $pagina >= $total_paginas ? 'disabled' : '' ?>">
-                    <a class="page-link" href="?page=<?= $pagina + 1 ?>">Próximo</a>
-                </li>
             </ul>
         </nav>
     <?php endif; ?>

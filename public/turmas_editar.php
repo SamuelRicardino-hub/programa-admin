@@ -59,14 +59,20 @@ if (!$turma) {
                                       placeholder="Ex: Grupo reflexivo focado em..."><?= htmlspecialchars($turma['descricao']) ?></textarea>
                         </div>
 
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">Responsável / Facilitador</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-white"><i class="bi bi-person-badge"></i></span>
-                                <input type="text" name="responsavel" class="form-control"
-                                       value="<?= htmlspecialchars($turma['responsavel']) ?>" required>
+                        <div class="mb-3">
+                                <label class="form-label fw-bold">Atendente Responsável</label>
+                                <select name="usuario_id" class="form-select">
+                                    <option value="">-- Sem atendente específico --</option>
+                                    <?php
+                                    // Busca apenas usuários com nível de atendente ou admin
+                                    $atendentes = $pdo->query("SELECT id, nome FROM usuarios WHERE nivel = 'atendente' ORDER BY nome ASC")->fetchAll();
+                                    foreach ($atendentes as $at) {
+                                        $selected = ($at['id'] == ($turma['usuario_id'] ?? '')) ? 'selected' : '';
+                                        echo "<option value='{$at['id']}' {$selected}>{$at['nome']}</option>";
+                                    }
+                                    ?>
+                                </select>
                             </div>
-                        </div>
 
                         <div class="row mb-4">
                             <div class="col-md-6">

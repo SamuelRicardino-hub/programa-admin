@@ -51,10 +51,7 @@ try {
             $id
         ]);
 
-        // ... após o $stmt->execute() do INSERT de turmas ...
-        $nova_turma_id = $pdo->lastInsertId();
-        registrarLog($pdo, 'CREATE', 'turmas', $nova_turma_id, "Criou a nova turma: " . $nome);
-
+        
     } else {
         // ==========================================
         // INSERT (Cadastro de nova turma)
@@ -73,19 +70,13 @@ try {
             $data_inicio,
             $data_fim,
             $status
-        ]);
+        ]);        
 
-        // Captura o ID real gerado para a nova turma
-        $novaTurmaId = $pdo->lastInsertId();
-
-        registrarLog(
-            $pdo,
-            'CREATE',
-            'turmas',
-            $novaTurmaId,
-            "Criou turma: $nome"
-        );
     }
+
+    // ... logo após o $sql->execute() do INSERT de turmas ...
+        $nova_turma_id = $pdo->lastInsertId();
+        registrarLog($pdo, 'CREATE', 'turmas', $nova_turma_id, "Cadastrou nova turma: " . $nome_turma);
 
     header("Location: turmas_lista.php?msg=sucesso");
     exit;

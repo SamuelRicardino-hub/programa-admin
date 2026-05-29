@@ -46,7 +46,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Redirecionamento limpo e seguro (funciona 100% pois nenhum HTML foi carregado ainda)
             header("Location: sessoes_lista.php?turma_id=" . $turma_id_redirecionar . "&sucesso=1");
             exit;
-
         } catch (PDOException $e) {
             die("Erro ao salvar presenças no banco de dados: " . $e->getMessage());
         }
@@ -57,11 +56,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// =========================================================================
-// 2. RECUPERAÇÃO DE DADOS APENAS PARA EXIBIÇÃO EM TELA (MÉTODO GET)
-// =========================================================================
+// ... logo após finalizar o laço (foreach/while) que salva as presenças no banco ...
+require_once __DIR__ . '/../config/logs.php';
 
-// Detalhes da sessão e da turma
+$stmt_sessao = $pdo->prepare("SELECT ts.descricao, t.nome FROM turmas_sessoes ts JOIN turmas t ON ts.turma_id = t.id WHERE ts.id = ?");
+$stmt_sessao->execute([$sessao_id]);
+$info_sessao = $stmt_sessao->fetch();
+
+$msg_presenca = $info_sessao ? "Atualizou a lista de presença da sessão '" . $info_sessao['descricao'] . "' (" . $info_sessao['nome'] . ")" : "Atualizou a lista de presença da sessão ID " . $sessao_id;
+
+registrarLog($pdo, 'UPDATE', 'presencas', $sessao_id, $msg_presenca);
+
 $stmt = $pdo->prepare("
     SELECT ts.*, t.nome as turma_nome 
     FROM turmas_sessoes ts 
@@ -109,7 +114,7 @@ require_once __DIR__ . '/../layout/admin_header.php';
                 <div>
                     <h3 class="fw-bold"><i class="bi bi-people me-2 text-primary"></i>Lista de Presença</h3>
                     <p class="text-muted">
-                        Sessão: <strong><?= htmlspecialchars($sessao['descricao']) ?></strong> | 
+                        Sessão: <strong><?= htmlspecialchars($sessao['descricao']) ?></strong> |
                         Data: <strong><?= date('d/m/Y', strtotime($sessao['data'])) ?></strong>
                     </p>
                 </div>
@@ -154,7 +159,7 @@ require_once __DIR__ . '/../layout/admin_header.php';
                             <button type="button" class="btn btn-sm btn-outline-danger" onclick="marcarTodos('falta')">❌ Todos Faltaram</button>
                         </div>
                     </div>
-                    
+
                     <div class="table-responsive">
                         <?php if (empty($participantes)): ?>
                             <div class="text-center my-5 p-4">
@@ -172,34 +177,34 @@ require_once __DIR__ . '/../layout/admin_header.php';
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($participantes as $p): 
+                                    <?php foreach ($participantes as $p):
                                         $status = $mapPresencas[$p['id']]['status'] ?? 'falta';
                                         $obs = $mapPresencas[$p['id']]['observacao'] ?? '';
                                     ?>
-                                    <tr id="row-<?= $p['id'] ?>" class="presenca-row">
-                                        <td class="ps-4 fw-bold text-dark"><?= htmlspecialchars($p['nome']) ?></td>
-                                        <td>
-                                            <select name="status[<?= $p['id'] ?>]" 
-                                                    class="form-select status-select shadow-none" 
+                                        <tr id="row-<?= $p['id'] ?>" class="presenca-row">
+                                            <td class="ps-4 fw-bold text-dark"><?= htmlspecialchars($p['nome']) ?></td>
+                                            <td>
+                                                <select name="status[<?= $p['id'] ?>]"
+                                                    class="form-select status-select shadow-none"
                                                     onchange="atualizarEstiloLinha(<?= $p['id'] ?>)">
-                                                <option value="presente" <?= $status == 'presente' ? 'selected' : '' ?>>✅ Presente</option>
-                                                <option value="falta" <?= $status == 'falta' ? 'selected' : '' ?>>❌ Falta</option>
-                                                <option value="justificado" <?= $status == 'justificado' ? 'selected' : '' ?>>⚠️ Justificado</option>
-                                            </select>
-                                        </td>
-                                        <td class="pe-4">
-                                            <input type="text" name="observacao[<?= $p['id'] ?>]" 
-                                                   class="form-control form-control-sm" 
-                                                   placeholder="Opcional..." 
-                                                   value="<?= htmlspecialchars($obs) ?>">
-                                        </td>
-                                    </tr>
+                                                    <option value="presente" <?= $status == 'presente' ? 'selected' : '' ?>>✅ Presente</option>
+                                                    <option value="falta" <?= $status == 'falta' ? 'selected' : '' ?>>❌ Falta</option>
+                                                    <option value="justificado" <?= $status == 'justificado' ? 'selected' : '' ?>>⚠️ Justificado</option>
+                                                </select>
+                                            </td>
+                                            <td class="pe-4">
+                                                <input type="text" name="observacao[<?= $p['id'] ?>]"
+                                                    class="form-control form-control-sm"
+                                                    placeholder="Opcional..."
+                                                    value="<?= htmlspecialchars($obs) ?>">
+                                            </td>
+                                        </tr>
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
                         <?php endif; ?>
                     </div>
-                    
+
                     <div class="card-footer bg-white py-3">
                         <button type="submit" class="btn btn-primary px-5 shadow">
                             <i class="bi bi-cloud-check me-2"></i>Finalizar e Salvar Chamada
@@ -212,51 +217,53 @@ require_once __DIR__ . '/../layout/admin_header.php';
 </div>
 
 <script>
-function atualizarEstiloLinha(pid) {
-    const row = document.getElementById('row-' + pid);
-    if (!row) return;
-    const select = row.querySelector('.status-select');
-    
-    row.classList.remove('table-success', 'table-danger', 'table-warning');
-    
-    if (select.value === 'presente') row.classList.add('table-success');
-    else if (select.value === 'falta') row.classList.add('table-danger');
-    else if (select.value === 'justificado') row.classList.add('table-warning');
-    
-    atualizarContadores();
-}
+    function atualizarEstiloLinha(pid) {
+        const row = document.getElementById('row-' + pid);
+        if (!row) return;
+        const select = row.querySelector('.status-select');
 
-function marcarTodos(tipo) {
-    document.querySelectorAll('.status-select').forEach(select => {
-        select.value = tipo;
-        const pid = select.name.match(/\[(\d+)\]/)[1];
-        atualizarEstiloLinha(pid);
-    });
-}
+        row.classList.remove('table-success', 'table-danger', 'table-warning');
 
-function atualizarContadores() {
-    let p = 0, f = 0, j = 0;
-    document.querySelectorAll('.status-select').forEach(select => {
-        if (select.value === 'presente') p++;
-        else if (select.value === 'falta') f++;
-        else if (select.value === 'justificado') j++;
-    });
-    
-    const cp = document.getElementById('countPresente');
-    const cf = document.getElementById('countFalta');
-    const cj = document.getElementById('countJustificado');
-    
-    if(cp) cp.innerText = p;
-    if(cf) cf.innerText = f;
-    if(cj) cj.innerText = j;
-}
+        if (select.value === 'presente') row.classList.add('table-success');
+        else if (select.value === 'falta') row.classList.add('table-danger');
+        else if (select.value === 'justificado') row.classList.add('table-warning');
 
-window.onload = () => {
-    document.querySelectorAll('.status-select').forEach(select => {
-        const pid = select.name.match(/\[(\d+)\]/)[1];
-        atualizarEstiloLinha(pid);
-    });
-};
+        atualizarContadores();
+    }
+
+    function marcarTodos(tipo) {
+        document.querySelectorAll('.status-select').forEach(select => {
+            select.value = tipo;
+            const pid = select.name.match(/\[(\d+)\]/)[1];
+            atualizarEstiloLinha(pid);
+        });
+    }
+
+    function atualizarContadores() {
+        let p = 0,
+            f = 0,
+            j = 0;
+        document.querySelectorAll('.status-select').forEach(select => {
+            if (select.value === 'presente') p++;
+            else if (select.value === 'falta') f++;
+            else if (select.value === 'justificado') j++;
+        });
+
+        const cp = document.getElementById('countPresente');
+        const cf = document.getElementById('countFalta');
+        const cj = document.getElementById('countJustificado');
+
+        if (cp) cp.innerText = p;
+        if (cf) cf.innerText = f;
+        if (cj) cj.innerText = j;
+    }
+
+    window.onload = () => {
+        document.querySelectorAll('.status-select').forEach(select => {
+            const pid = select.name.match(/\[(\d+)\]/)[1];
+            atualizarEstiloLinha(pid);
+        });
+    };
 </script>
 
-<?php require_once __DIR__. '/../layout/admin_footer.php'; ?>
+<?php require_once __DIR__ . '/../layout/admin_footer.php'; ?>

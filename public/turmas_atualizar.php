@@ -56,8 +56,8 @@ try {
         ':id' => $id
     ]);
 
-    // ... após o $stmt->execute() do UPDATE de turmas ...
-    registrarLog($pdo, 'UPDATE', 'turmas', $id, "Atualizou os dados da turma: " . $nome);
+    // ... logo após o $sql->execute() do UPDATE de turmas ...
+    registrarLog($pdo, 'UPDATE', 'turmas', $id, "Editou turma: " . $nome_antigo . " → " . $nome_novo . " (ID " . $id . ")");
     
 } catch (PDOException $e) {
     die("Erro ao atualizar turma");
