@@ -40,21 +40,23 @@ $logoPrefeitura = __DIR__ . '/../assets/LogoPrefeitura.png';
 $logoProjeto    = __DIR__ . '/../assets/ProjetoSER.jpg';
 
 if (file_exists($logoPrefeitura)) {
-    $pdf->Image($logoPrefeitura, 10, 10, 35);
+    $pdf->Image($logoPrefeitura, 8, 10, 45);
 }
 
 if (file_exists($logoProjeto)) {
-    $pdf->Image($logoProjeto, 165, 10, 35);
+    $pdf->Image($logoProjeto, 170, 10, 30);
 }
 
 // ===== CABEÇALHO OFICIAL =====
-$pdf->SetFont('DejaVu','B',11);
+// ===== CABEÇALHO OFICIAL =====
+$pdf->SetFont('DejaVu','B',9);
 $pdf->Cell(0,5,'ESTADO DO RIO DE JANEIRO',0,1,'C');
 $pdf->Cell(0,5,'PREFEITURA MUNICIPAL DE PARACAMBI',0,1,'C');
-$pdf->SetFont('DejaVu','',9);
+$pdf->SetFont('DejaVu','B',9);
 $pdf->Cell(0,5,'SECRETARIA MUNICIPAL DE PROTEÇÃO E POLÍTICA PARA A MULHER',0,1,'C');
-$pdf->SetFont('DejaVu','B',10);
+$pdf->SetFont('DejaVu','B',9);
 $pdf->Cell(0,5,'PROJETO S.E.R. – GRUPO REFLEXIVO PARA HOMENS',0,1,'C');
+
 
 $pdf->Ln(10);
 $pdf->SetFont('DejaVu', 'B', 12);

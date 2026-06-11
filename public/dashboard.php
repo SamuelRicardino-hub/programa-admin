@@ -139,6 +139,9 @@ $turmas = $pdo->query("
                 <a href="participantes_lista.php" class="btn btn-sm btn-dark rounded-pill px-3">
                     <i class="bi bi-list-check me-1"></i> Ver Lista
                 </a>
+                <a href="importar_fichas.php" class="btn btn-sm btn-danger rounded-pill px-3">
+                    <i class="bi bi-list-check me-1"></i> Importar Fichas
+                </a>
             </div>
         </div>
     </div>
